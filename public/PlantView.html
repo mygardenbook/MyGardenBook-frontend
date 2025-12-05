@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fish Details</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Baloo 2','Kalam',sans-serif;
+    background: url('Bg.png') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(255,255,255,0.7);
+    z-index: 1;
+  }
+
+  .back-arrow {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+  }
+
+  .container {
+    position: relative;
+    z-index: 5;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Flip card */
+  .flip-card {
+    width: 70%;
+    max-width: 320px;
+    aspect-ratio: 4 / 3;
+    perspective: 1200px;
+    margin-top: 5rem;
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  .flip-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.8s ease;
+    transform-style: preserve-3d;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+
+  .flip-card.flipped .flip-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-front, .flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    overflow: hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .flip-front img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+  }
+
+  .flip-back {
+    transform: rotateY(180deg);
+    background: rgba(143,216,113,0.4);
+    flex-direction: column;
+    color: #1f2715;
+    box-shadow: inset 0 0 25px rgba(102,160,58,0.3);
+  }
+
+  .qr-flip {
+    width: 120px; height: 120px;
+    object-fit: contain;
+    background: white;
+    border-radius: 12px;
+    padding: 0.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Details */
+  .details {
+    width: 85%;
+    max-width: 420px;
+    color: #262A23;
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+    z-index: 5;
+  }
+
+  .green-box {
+    background: rgba(143,216,113,0.35);
+    border-radius: 20px;
+    padding: 0.9rem 1rem;
+    margin-top: 0.3rem;
+    font-size: 1rem;
+    line-height: 1.4rem;
+  }
+
+  /* AI section */
+  .ai-section {
+    width: 85%;
+    max-width: 420px;
+    background: rgba(143, 216, 113, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(183,218,184,0.6);
+    padding: 1rem;
+    margin: 2rem 0;
+    z-index: 5;
+  }
+
+  .ai-section textarea {
+    width:100%;
+    border-radius:12px;
+    border:none;
+    resize:none;
+    font-size:1rem;
+    padding:0.6rem;
+    background:#fff;
+    outline:none;
+  }
+
+  .ai-section button {
+    margin-top: 0.6rem;
+    background: #BFE7BC;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- Back always goes to Login -->
+<button class="back-arrow" onclick="window.location.href='Login.html'">
+  <svg viewBox="0 0 30 30" width="100%" height="100%">
+    <polyline points="20,6 10,15 20,24"
+              fill="none"
+              stroke="#262A23"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<div class="container">
+
+  <!-- Flip Card -->
+  <div class="flip-card" id="flipCard">
+    <div class="flip-inner">
+      <div class="flip-front">
+        <img id="fishImage" src="placeholder.jpg" alt="Fish image">
+      </div>
+
+      <div class="flip-back">
+        <img id="fishQR" class="qr-flip" src="qr_placeholder.png">
+        <p>Scan Me!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="details">
+    <p><strong>Scientific Name:</strong> <span id="scientificName">Loading...</span></p>
+    <p><strong>Common Name:</strong> <span id="commonName">Loading...</span></p>
+    <p><strong>Category:</strong> <span id="category">Loading...</span></p>
+
+    <p style="font-weight:bold; margin-top:1rem;">Description:</p>
+    <div class="green-box" id="description">Loading...</div>
+  </div>
+
+  <!-- AI -->
+  <div class="ai-section">
+    <label>Ask AI</label>
+    <textarea id="aiQuestion" placeholder="Ask something about this fish..."></textarea>
+    <button onclick="handleUniversalAI()">Chat with AI</button>
+
+    <div id="aiResponse" style="background:#fff;padding:1rem;border-radius:10px;max-height:200px;overflow-y:auto;"></div>
+  </div>
+
+</div>
+
+<script>
+  const API_BASE = "https://mygardenbook-backend.onrender.com";
+
+  const params = new URLSearchParams(window.location.search);
+  const fishId = params.get("id");
+
+  async function loadFish() {
+    try {
+      const res = await fetch(`${API_BASE}/api/fish/${fishId}`);
+      const fish = await res.json();
+
+      fishImage.src = fish.image_url || "placeholder.jpg";
+      fishQR.src = fish.qr_code_url || "qr_placeholder.png";
+      scientificName.textContent = fish.scientific_name || "N/A";
+      commonName.textContent = fish.name || "N/A";
+      category.textContent = fish.category || "N/A";
+      description.textContent = fish.description || "No description available.";
+
+    } catch (err) {
+      console.error("Fish load error:", err);
+      description.textContent = "Failed to load fish details.";
+    }
+  }
+
+  document.getElementById("flipCard").addEventListener("click", () => {
+    document.getElementById("flipCard").classList.toggle("flipped");
+  });
+
+  loadFish();
+</script>
+
+<script src="js/chat.js"></script>
+<script src="/js/config.js"></script>
+</body>
+</html>

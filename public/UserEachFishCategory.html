@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Fish Details</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet"/>
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  body {
+    font-family:'Baloo 2','Kalam',sans-serif;
+    background:url('Bg.png') center/cover no-repeat fixed;
+    min-height:100vh;
+    position:relative;
+  }
+
+  body::before {
+    content:"";
+    position:fixed; top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(255,255,255,0.7);
+    z-index:0;
+  }
+
+  .container {
+    position:relative;
+    z-index:5;
+    padding:1rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .back-arrow {
+    position:fixed;
+    top:16px; left:16px;
+    width:36px; height:36px;
+    background:none; border:none;
+    cursor:pointer; z-index:10;
+  }
+
+  /* Flip card */
+  .flip-card {
+    width:70%;
+    max-width:320px;
+    aspect-ratio:4/3;
+    margin-top:5rem;
+    perspective:1200px;
+    cursor:pointer;
+  }
+
+  .flip-inner {
+    width:100%; height:100%;
+    position:relative;
+    border-radius:20px;
+    transition:transform .8s ease;
+    transform-style:preserve-3d;
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  }
+
+  .flip-card.flipped .flip-inner { transform:rotateY(180deg); }
+
+  .flip-front, .flip-back {
+    position:absolute;
+    width:100%; height:100%;
+    backface-visibility:hidden;
+    border-radius:20px;
+    overflow:hidden;
+  }
+
+  .flip-front img {
+    width:100%; height:100%;
+    object-fit:cover;
+  }
+
+  .flip-back {
+    transform:rotateY(180deg);
+    background:rgba(143,216,113,0.4);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+  }
+
+  .qr-img {
+    width:120px; height:120px;
+    border-radius:12px;
+    border:2px solid #4A771C;
+    margin-bottom:8px;
+  }
+
+  /* Details area */
+  .details {
+    width:85%;
+    max-width:420px;
+    margin-top:1.5rem;
+    color:#1a2a10;
+  }
+
+  .green-box {
+    background:rgba(143,216,113,0.35);
+    padding:1rem;
+    border-radius:12px;
+    line-height:1.4rem;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+  }
+
+  /* AI */
+  .ai-section {
+    width:85%; max-width:420px;
+    margin:2rem 0;
+    padding:1rem;
+    background:rgba(143,216,113,0.3);
+    border-radius:20px;
+  }
+
+  textarea {
+    width:100%;
+    padding:0.7rem;
+    border-radius:10px;
+    border:none;
+    resize:none;
+    margin-bottom:.6rem;
+  }
+</style>
+</head>
+
+<body>
+
+<button class="back-arrow" onclick="window.location.href='UserFishes.html'">
+  <svg viewBox="0 0 30 30" width="100%" height="100%">
+    <polyline points="20,6 10,15 20,24"
+      fill="none" stroke="#262A23" stroke-width="4"
+      stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<div class="container">
+
+  <!-- Flip card -->
+  <div class="flip-card" id="flipCard">
+    <div class="flip-inner">
+      <div class="flip-front">
+        <img id="fishImage" src="placeholder.jpg">
+      </div>
+      <div class="flip-back">
+        <img id="fishQR" class="qr-img">
+        <p>Scan Me!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="details">
+    <h2 id="fishName"></h2>
+    <h3><i id="scientificName"></i></h3>
+    <p><b>Category:</b> <span id="category"></span></p>
+
+    <p style="font-weight:bold; margin-top:1rem;">Description:</p>
+    <div class="green-box" id="description"></div>
+  </div>
+
+  <div class="ai-section">
+    <label>Ask AI</label>
+    <textarea id="aiQuestion" placeholder="Ask something..."></textarea>
+    <button onclick="handleUniversalAI()">Chat with AI</button>
+    <div id="aiResponse"
+         style="background:#fff;padding:1rem;border-radius:12px;max-height:200px;overflow-y:auto;"></div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = "https://mygardenbook-backend.onrender.com";
+const params = new URLSearchParams(window.location.search);
+const fishId = params.get("id");
+
+function pick(...fields){ for(const f of fields){ if(f) return f; } return null; }
+
+function resolveImg(src){
+  if (!src) return null;
+  if (src.startsWith("http")) return src;
+  if (src.startsWith("/")) return API_BASE + src;
+  return src;
+}
+
+async function loadFish(){
+  try {
+    const res = await fetch(`${API_BASE}/api/fishes/${fishId}`);
+    const fish = await res.json();
+
+    document.getElementById("fishImage").src =
+      resolveImg(pick(fish.image, fish.image_url, fish.img)) || "placeholder.jpg";
+
+    document.getElementById("fishQR").src =
+      resolveImg(pick(fish.qr_code_url, fish.qrCode)) || "qr_placeholder.png";
+
+    fishName.textContent = pick(fish.name, fish.commonName) || "Unnamed Fish";
+    scientificName.textContent = pick(fish.scientific_name, fish.scientificName) || "";
+    category.textContent = pick(fish.category, fish.categoryName) || "N/A";
+    description.textContent = pick(fish.description, fish.desc, fish.details) || "No description available.";
+  }
+  catch (err){
+    description.textContent = "Failed to load fish.";
+  }
+}
+
+document.getElementById("flipCard").onclick =
+  () => document.getElementById("flipCard").classList.toggle("flipped");
+
+loadFish();
+</script>
+<script src="/js/config.js"></script>
+<script src="js/chat.js"></script>
+</body>
+</html>
