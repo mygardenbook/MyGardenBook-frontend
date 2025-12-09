@@ -7,12 +7,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    /* ---------- BASE ---------- */
     * { box-sizing: border-box; margin:0; padding:0; }
     html,body { height:100%; }
     body {
       font-family: 'Baloo 2','Kalam',sans-serif;
-      background: url('/Bg.png') no-repeat center center fixed;
+      background: url('Bg.png') no-repeat center center fixed;
       background-size: cover;
       min-height:100vh;
       display:flex;
@@ -29,7 +28,6 @@
       z-index:0;
     }
 
-    /* CARD */
     .card {
       z-index:2;
       width:92%;
@@ -42,7 +40,6 @@
 
     .title { text-align:center; font-size:1.6rem; font-weight:700; margin-bottom:12px; color:#204d1e; }
 
-    /* TABS */
     .tabs { display:flex; gap:8px; margin-bottom:12px; }
     .tab {
       cursor:pointer; flex:1; padding:8px 10px; border-radius:12px;
@@ -50,77 +47,84 @@
     }
     .tab.active { background:#BFE7BC; color:#1A2B10; box-shadow:0 3px 10px rgba(0,0,0,0.12); }
 
-    /* FORMS */
     .forms { width:200%; display:flex; transition:transform 0.28s ease; }
     form { width:100%; display:flex; flex-direction:column; gap:10px; }
-    input, select, textarea {
-      border-radius:10px; border:2px solid #66A03A; padding:10px 12px; font-size:1rem; background:white; outline:none;
+
+    input {
+      border-radius:10px; border:2px solid #66A03A; padding:10px 12px;
+      font-size:1rem; background:white; outline:none;
     }
-    .btn { background:#BFE7BC; border:none; padding:10px; border-radius:12px; font-size:1.05rem; cursor:pointer; font-weight:600; }
+
+    .btn {
+      background:#BFE7BC; border:none; padding:10px;
+      border-radius:12px; font-size:1.05rem; cursor:pointer; font-weight:600;
+    }
     .btn:hover { background:#b3e572; }
+
     .helper { font-size:0.95rem; color:#2e7d32; text-align:center; min-height:1rem; }
 
-    .innerTab { background:#d7efce; border:none; padding:8px; border-radius:12px; font-weight:600; cursor:pointer; }
+    .innerTab {
+      background:#d7efce; border:none; padding:8px; border-radius:12px;
+      font-weight:600; cursor:pointer;
+    }
     .innerTab.active { background:#BFE7BC; }
 
-    /* small utility */
     .row { display:flex; gap:8px; }
 
-    /* MOBILE FIXES */
     @media (max-width:600px) {
       body { padding: 0 10px; }
-      .card { width:100% !important; max-width:100% !important; padding:1.2rem !important; }
-      input, button, .btn, select, textarea { width:100% !important; font-size:1rem !important; }
-      .row { flex-direction:row; gap:8px; }
+      .card { width:100%; max-width:100%; padding:1.2rem; }
+      input, button { width:100%; font-size:1rem; }
     }
   </style>
 </head>
 
 <body>
-  <div class="card" role="main" aria-labelledby="appTitle">
-    <div id="appTitle" class="title">My Garden Book</div>
 
-    <div class="tabs" role="tablist">
-      <button id="userTab" class="tab active" role="tab" aria-selected="true">User Login / Signup</button>
-      <button id="adminTab" class="tab" role="tab" aria-selected="false">Admin Login</button>
+  <div class="card" role="main">
+    <div class="title">My Garden Book</div>
+
+    <div class="tabs">
+      <button id="userTab" class="tab active">User Login / Signup</button>
+      <button id="adminTab" class="tab">Admin Login</button>
     </div>
 
     <div style="overflow:hidden;">
       <div class="forms" id="formSlider">
 
         <!-- USER PANEL -->
-        <div style="width:100%; padding-right:12px;" aria-hidden="false">
+        <div style="width:100%; padding-right:12px;">
 
           <div class="row" style="margin-bottom:10px;">
-            <button id="uLoginBtn" class="innerTab active" style="flex:1;">Login</button>
-            <button id="uSignupBtn" class="innerTab" style="flex:1;">Sign up</button>
+            <button id="uLoginBtn" class="innerTab active">Login</button>
+            <button id="uSignupBtn" class="innerTab">Sign up</button>
           </div>
 
           <!-- USER LOGIN -->
-          <form id="userLoginForm" autocomplete="on">
-            <input id="userLoginEmail" name="email" type="email" placeholder="Email" required />
-            <input id="userLoginPass" name="password" type="password" placeholder="Password" required />
+          <form id="userLoginForm">
+            <input id="userLoginEmail" type="email" placeholder="Email" required />
+            <input id="userLoginPass" type="password" placeholder="Password" required />
             <button class="btn" type="submit">Login</button>
-            <div id="userLoginMsg" class="helper" aria-live="polite"></div>
+            <div id="userLoginMsg" class="helper"></div>
           </form>
 
           <!-- USER SIGNUP -->
-          <form id="userSignupForm" style="display:none;" autocomplete="on">
-            <input id="userSignupEmail" name="email" type="email" placeholder="Email" required />
-            <input id="userSignupPass" name="password" type="password" placeholder="Create password" required />
-            <input id="userSignupConfirm" name="confirm" type="password" placeholder="Confirm password" required />
+          <form id="userSignupForm" style="display:none;">
+            <input id="userSignupEmail" type="email" placeholder="Email" required />
+            <input id="userSignupPass" type="password" placeholder="Create password" required />
+            <input id="userSignupConfirm" type="password" placeholder="Confirm password" required />
             <button class="btn" type="submit">Create account</button>
-            <div id="userSignupMsg" class="helper" aria-live="polite"></div>
+            <div id="userSignupMsg" class="helper"></div>
           </form>
         </div>
 
         <!-- ADMIN PANEL -->
         <div style="width:100%; padding-left:12px;">
-          <form id="adminLoginForm" autocomplete="on">
-            <input id="adminEmail" name="email" type="email" placeholder="Admin email" required />
-            <input id="adminPass" name="password" type="password" placeholder="Admin password" required />
+          <form id="adminLoginForm">
+            <input id="adminEmail" type="email" placeholder="Admin email" required />
+            <input id="adminPass" type="password" placeholder="Admin password" required />
             <button class="btn" type="submit">Admin Login</button>
-            <div id="adminMsg" class="helper" aria-live="polite"></div>
+            <div id="adminMsg" class="helper"></div>
           </form>
         </div>
 
@@ -128,185 +132,14 @@
     </div>
   </div>
 
-  <!-- SUPABASE (UMD) -->
+  <!-- Supabase UMD -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
 
-  <script>
-    // --- CONFIG ---
-    const SUPABASE_URL = "https://ctoqycjzmfvdvgnirlkp.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0b3F5Y2p6bWZ2ZHZnbmlybGtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNDUyOTIsImV4cCI6MjA3OTkyMTI5Mn0.Gd3gHxbypxTKpyweLFwQvriIeX2lF1QTTRSMDfpXbqI";
-    const BACKEND_BASE = "https://mygardenbook-backend.onrender.com";
+  <!-- Login Logic -->
+  <script src="js/login.js"></script>
 
-    // supabase client
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // --- ELEMENTS (explicit) ---
-    const userTab = document.getElementById('userTab');
-    const adminTab = document.getElementById('adminTab');
-    const formSlider = document.getElementById('formSlider');
-
-    const uLoginBtn = document.getElementById('uLoginBtn');
-    const uSignupBtn = document.getElementById('uSignupBtn');
-
-    const userLoginForm = document.getElementById('userLoginForm');
-    const userSignupForm = document.getElementById('userSignupForm');
-    const adminLoginForm = document.getElementById('adminLoginForm');
-
-    const userLoginEmail = document.getElementById('userLoginEmail');
-    const userLoginPass = document.getElementById('userLoginPass');
-    const userLoginMsg = document.getElementById('userLoginMsg');
-
-    const userSignupEmail = document.getElementById('userSignupEmail');
-    const userSignupPass = document.getElementById('userSignupPass');
-    const userSignupConfirm = document.getElementById('userSignupConfirm');
-    const userSignupMsg = document.getElementById('userSignupMsg');
-
-    const adminEmail = document.getElementById('adminEmail');
-    const adminPass = document.getElementById('adminPass');
-    const adminMsg = document.getElementById('adminMsg');
-
-    // --- TAB SWITCH ---
-    userTab.addEventListener('click', () => {
-      userTab.classList.add('active');
-      adminTab.classList.remove('active');
-      userTab.setAttribute('aria-selected','true');
-      adminTab.setAttribute('aria-selected','false');
-      formSlider.style.transform = 'translateX(0%)';
-    });
-
-    adminTab.addEventListener('click', () => {
-      adminTab.classList.add('active');
-      userTab.classList.remove('active');
-      adminTab.setAttribute('aria-selected','true');
-      userTab.setAttribute('aria-selected','false');
-      formSlider.style.transform = 'translateX(-50%)';
-    });
-
-    // --- USER LOGIN / SIGNUP SWITCH (inner tabs) ---
-    uLoginBtn.addEventListener('click', () => {
-      uLoginBtn.classList.add('active');
-      uSignupBtn.classList.remove('active');
-      userLoginForm.style.display = 'flex';
-      userSignupForm.style.display = 'none';
-      userLoginMsg.textContent = '';
-    });
-
-    uSignupBtn.addEventListener('click', () => {
-      uSignupBtn.classList.add('active');
-      uLoginBtn.classList.remove('active');
-      userLoginForm.style.display = 'none';
-      userSignupForm.style.display = 'flex';
-      userSignupMsg.textContent = '';
-    });
-
-    // --- USER LOGIN ---
-    userLoginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      userLoginMsg.style.color = '#204d1e';
-      userLoginMsg.textContent = 'Signing in...';
-
-      const email = userLoginEmail.value.trim();
-      const password = userLoginPass.value.trim();
-
-      try {
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
-
-        if (error) {
-          userLoginMsg.style.color = 'red';
-          userLoginMsg.textContent = error.message || 'Login failed';
-          return;
-        }
-
-        // set role and id
-        localStorage.setItem('role', 'user');
-        if (data && data.user && data.user.id) localStorage.setItem('mg_user_id', data.user.id);
-
-        userLoginMsg.style.color = 'green';
-        userLoginMsg.textContent = 'Login successful!';
-        // navigate immediately (no background waiting)
-        window.location.href = 'User.html';
-      } catch (err) {
-        userLoginMsg.style.color = 'red';
-        userLoginMsg.textContent = (err && err.message) ? err.message : 'Unexpected error';
-        console.error(err);
-      }
-    });
-
-    // --- USER SIGNUP ---
-    userSignupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      userSignupMsg.style.color = '#204d1e';
-      userSignupMsg.textContent = 'Creating account...';
-
-      const email = userSignupEmail.value.trim();
-      const pass = userSignupPass.value.trim();
-      const confirm = userSignupConfirm.value.trim();
-
-      if (pass !== confirm) {
-        userSignupMsg.style.color = 'red';
-        userSignupMsg.textContent = 'Passwords do not match';
-        return;
-      }
-
-      try {
-        const { data, error } = await client.auth.signUp({ email, password: pass });
-
-        if (error) {
-          userSignupMsg.style.color = 'red';
-          userSignupMsg.textContent = error.message || 'Signup failed';
-          return;
-        }
-
-        userSignupMsg.style.color = 'green';
-        userSignupMsg.textContent = 'Account created. Please log in.';
-        uLoginBtn.click();
-      } catch (err) {
-        userSignupMsg.style.color = 'red';
-        userSignupMsg.textContent = (err && err.message) ? err.message : 'Unexpected error';
-        console.error(err);
-      }
-    });
-
-    // --- ADMIN LOGIN ---
-    adminLoginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      adminMsg.style.color = '#204d1e';
-      adminMsg.textContent = 'Logging in...';
-
-      const email = adminEmail.value.trim();
-      const password = adminPass.value.trim();
-
-      try {
-        const res = await fetch(`${BACKEND_BASE}/api/admin/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        const json = await res.json().catch(()=>({}));
-
-        if (!res.ok) {
-          adminMsg.style.color = 'red';
-          adminMsg.textContent = (json && json.error) ? json.error : 'Admin login failed';
-          return;
-        }
-
-        localStorage.setItem('role', 'admin');
-        if (json && json.token) localStorage.setItem('admin_token', json.token);
-        if (json && json.admin && json.admin.email) localStorage.setItem('admin_email', json.admin.email);
-
-        adminMsg.style.color = 'green';
-        adminMsg.textContent = 'Login successful!';
-        window.location.href = 'Admin.html';
-      } catch (err) {
-        adminMsg.style.color = 'red';
-        adminMsg.textContent = (err && err.message) ? err.message : 'Unexpected error';
-        console.error(err);
-      }
-    });
-
-  </script>
-
+  <!-- Config -->
   <script src="js/config.js"></script>
+
 </body>
 </html>
