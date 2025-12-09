@@ -12,9 +12,11 @@
       background: none; overflow-x: hidden; box-sizing: border-box;
     }
     body { position: relative; z-index: 0; }
+
+    /* ✅ FIXED BACKGROUND IMAGE PATH */
     .background-overlay {
       position: fixed; z-index: 0; width: 100%; height: 100%; top: 0; left: 0;
-      background: url('Bg.png') no-repeat center center fixed;
+      background: url('/Bg.png') no-repeat center center fixed;
       background-size: cover;
     }
     .background-overlay::after {
@@ -109,6 +111,7 @@
 </head>
 <body>
   <div class="background-overlay"></div>
+
   <div class="content">
     <div class="nav-row">
       <button class="back-arrow" onclick="window.location.href='Admin.html'">
@@ -199,7 +202,6 @@
       return;
     }
 
-    // Delete mode toggle
     document.querySelectorAll(".plant-card").forEach(c => c.classList.remove("selected"));
     card.classList.add("selected");
     selectedPlantId = id;
@@ -209,7 +211,6 @@
   async function toggleDeleteMode() {
     const btn = document.getElementById("deleteBtn");
 
-    // Turn ON delete mode
     if (!deleteMode) {
       deleteMode = true;
       selectedPlantId = null;
@@ -219,7 +220,6 @@
       return;
     }
 
-    // Confirm Delete
     if (!selectedPlantId) {
       showMessage("No plant selected", "error");
       resetDeleteMode();
@@ -230,8 +230,6 @@
       const res = await fetch(`${API_BASE}/api/plants/${selectedPlantId}/delete`, {
         method: "DELETE"
       });
-
-      const data = await res.json();
 
       if (res.ok) {
         showMessage("Plant deleted successfully", "success");
@@ -274,6 +272,7 @@
 
   loadPlants();
 </script>
+
 <script src="/js/config.js"></script>
 </body>
 </html>

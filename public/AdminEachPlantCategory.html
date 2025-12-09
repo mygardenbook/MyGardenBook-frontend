@@ -4,9 +4,44 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Admin - Plant Category</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
 <style>
+
+  /* =============================
+     GLOBAL MOBILE FIXES
+  ============================== */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.6rem !important;
+      padding: 0.6rem 1rem !important;
+      margin-top: 5rem !important;
+    }
+    .plant-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 1rem !important;
+      max-width: 90% !important;
+    }
+    .plant-card {
+      width: 100% !important;
+      padding: 1rem !important;
+    }
+    .plant-img {
+      width: 80px !important;
+      height: 80px !important;
+    }
+    .back-arrow {
+      width: 32px !important;
+      height: 32px !important;
+      top: 12px !important;
+      left: 12px !important;
+    }
+  }
+
+  /* =============================
+     BASE STYLES
+  ============================== */
   body {
     margin: 0;
     padding: 0;
@@ -15,21 +50,25 @@
     background-size: cover;
     position: relative;
     overflow-x: hidden;
+    min-height: 100vh;
   }
+
   .overlay {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
+    position: fixed; inset: 0;
     background: rgba(255,255,255,0.7);
     z-index: 1;
   }
+
   .back-arrow {
     position: fixed;
     top: 16px; left: 16px;
     z-index: 5;
-    background: none; border: none;
+    background: none;
+    border: none;
     cursor: pointer;
     width: 36px; height: 36px;
   }
+
   h1 {
     background: rgba(143,216,113,0.6);
     color: #262A23;
@@ -41,18 +80,20 @@
     margin: 4.5rem auto 2rem auto;
     font-weight: 600;
     position: relative;
-    z-index: 2;
+    z-index: 3;
   }
+
   .plant-grid {
+    position: relative;
+    z-index: 3;
     display: grid;
     grid-template-columns: repeat(2,1fr);
     gap: 1.5rem;
-    justify-items: center;
     max-width: 420px;
+    justify-items: center;
     margin: 0 auto 3rem;
-    position: relative;
-    z-index: 2;
   }
+
   .plant-card {
     background: rgba(143,216,113,0.5);
     border-radius: 20px;
@@ -60,16 +101,22 @@
     padding: 0.8rem;
     width: 130px;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    text-align: center;
+    transition: transform 0.15s ease;
   }
+
+  .plant-card:hover {
+    transform: scale(1.03);
+  }
+
   .plant-img {
-    width: 70px; height: 70px;
+    width: 70px;
+    height: 70px;
     border-radius: 10px;
     object-fit: cover;
     background: white;
   }
+
   .plant-name {
     background: #204d1e;
     color: white;
@@ -77,39 +124,47 @@
     border-radius: 16px;
     margin-top: 0.6rem;
     font-size: 0.85rem;
-    text-align: center;
   }
+
 </style>
 </head>
 
 <body>
-  <div class="overlay"></div>
 
-  <button class="back-arrow" onclick="window.location.href='AdminPlantCategories.html'">
-    <svg viewBox="0 0 30 30" width="100%" height="100%">
-      <polyline points="20,6 10,15 20,24"
-        fill="none" stroke="#262A23" stroke-width="4"
-        stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
+<div class="overlay"></div>
 
-  <h1 id="categoryTitle">Category</h1>
+<!-- Back Button -->
+<button class="back-arrow" onclick="window.location.href='AdminPlantCategories.html'">
+  <svg viewBox="0 0 30 30" width="100%" height="100%">
+    <polyline points="20,6 10,15 20,24"
+      fill="none" stroke="#262A23" stroke-width="4"
+      stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
 
-  <div class="plant-grid" id="plantGrid"></div>
-  <div id="noResults" style="text-align:center; margin-top:1rem; display:none; color:#204d1e;">
-    No plants found in this category.
-  </div>
+<!-- Title -->
+<h1 id="categoryTitle">Category</h1>
+
+<!-- Plant Grid -->
+<div class="plant-grid" id="plantGrid"></div>
+
+<div id="noResults" style="text-align:center; margin-top:1rem; display:none; color:#204d1e; font-size:1.1rem;">
+  No plants found in this category.
+</div>
 
 <script>
+  /* Backend API */
   const API_BASE = location.hostname.includes("localhost")
     ? "http://localhost:5000"
     : "https://mygardenbook-backend.onrender.com";
 
+  /* Get category from URL */
   const params = new URLSearchParams(location.search);
   const category = params.get("category") || "Category";
 
   document.getElementById("categoryTitle").textContent = category;
 
+  /* Load plants */
   async function loadPlants() {
     try {
       const res = await fetch(`${API_BASE}/api/plants`);
@@ -134,9 +189,9 @@
       filtered.forEach(p => {
         const card = document.createElement("div");
         card.className = "plant-card";
-        card.onclick = () => {
+
+        card.onclick = () =>
           location.href = `AdminEditPlant.html?id=${encodeURIComponent(p.id)}`;
-        };
 
         card.innerHTML = `
           <img class="plant-img" src="${p.image || 'placeholder.jpg'}" alt="${p.commonName}">
@@ -145,15 +200,18 @@
 
         grid.appendChild(card);
       });
+
     } catch (err) {
       console.error(err);
-      document.getElementById("noResults").textContent = "Error loading plants.";
-      document.getElementById("noResults").style.display = "block";
+      const noRes = document.getElementById("noResults");
+      noRes.textContent = "Error loading plants.";
+      noRes.style.display = "block";
     }
   }
 
   loadPlants();
 </script>
+
 <script src="/js/config.js"></script>
 </body>
 </html>

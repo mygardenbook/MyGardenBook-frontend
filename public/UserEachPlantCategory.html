@@ -1,222 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Plants in Category</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Baloo 2','Kalam','Arial',sans-serif;
-      background: url('Bg.png') no-repeat center center fixed;
-      background-size: cover;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
+<title>Plants in Category</title>
 
-    .bg-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(255,255,255,0.64);
-      z-index: 0; pointer-events: none;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet"/>
 
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 520px;
-      margin: 25px auto 40px auto;
-      padding: 0 4vw 40px 4vw;
-    }
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-    .back-arrow {
-      background: none;
-      border: none;
-      color: #193c10;
-      cursor: pointer;
-      width: 28px;
-      height: 28px;
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
+  body {
+    font-family:'Baloo 2','Kalam','Arial',sans-serif;
+    background:url('Bg.png') center/cover no-repeat fixed;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
 
-    .category-header {
-      background: #A6DEAA;
-      border-radius: 34px;
-      text-align: center;
-      font-size: 2em;
-      font-weight: 500;
-      color: #222e12;
-      margin: 75px auto 25px auto;
-      padding: 16px 0 14px 0;
-      letter-spacing: 0.5px;
-      width: 95%;
-      max-width: 500px;
-    }
+  /* Background overlay */
+  body::before {
+    content:"";
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(255,255,255,0.68);
+    z-index:0;
+  }
 
-    .plant-grid {
-      display: grid;
-      grid-template-columns: repeat(2,1fr);
-      gap: 22px 16px;
-      justify-items: center;
-      padding-bottom: 15px;
-    }
+  .container {
+    position:relative;
+    z-index:5;
+    max-width:520px;
+    margin:30px auto 40px auto;
+    padding:0 5vw 40px 5vw;
+  }
 
-    .plant-card {
-      background: #A6DEAA;
-      border-radius: 26px;
-      width: 117px;
-      height: 186px;
-      padding: 15px 6px 10px 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(109,164,109,0.09);
-      transition: transform 0.1s ease, background 0.15s ease;
-    }
+  /* Back arrow */
+  .back-arrow {
+    background:none;
+    border:none;
+    position:fixed;
+    top:18px; left:18px;
+    width:34px; height:34px;
+    cursor:pointer;
+    z-index:15;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
 
-    .plant-card:hover {
-      background: #8BC48A;
-      box-shadow: 0 8px 18px rgba(32,71,36,0.12);
-      transform: scale(1.03);
-    }
+  /* Category title */
+  .category-header {
+    width:95%;
+    margin:75px auto 25px auto;
+    background:#A6DEAA;
+    padding:14px 0;
+    border-radius:30px;
+    text-align:center;
+    font-size:2rem;
+    color:#1f2e12;
+    font-weight:600;
+    letter-spacing:0.5px;
+  }
 
-    .plant-img {
-      width: 84px;
-      height: 62px;
-      background: #d3f6d1;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 15px;
-      overflow: hidden;
-    }
+  /* Grid */
+  .plant-grid {
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px 16px;
+    justify-items:center;
+    padding-bottom:20px;
+  }
 
-    .plant-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 14px;
-    }
+  /* Card */
+  .plant-card {
+    width:120px;
+    height:190px;
+    background:#A6DEAA;
+    border-radius:22px;
+    padding:14px 6px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:pointer;
+    box-shadow:0 2px 10px rgba(50,90,50,0.15);
+    transition:0.15s ease;
+  }
 
-    .plant-label {
-      background: #244a22;
-      color: #fff;
-      border-radius: 13px;
-      font-size: 1em;
-      width: 94%;
-      padding: 10px 2px;
-      text-align: center;
-      font-weight: 400;
-      letter-spacing: 0.5px;
-    }
+  .plant-card:hover {
+    transform:scale(1.03);
+    background:#8CCF87;
+    box-shadow:0 6px 16px rgba(32,71,36,0.18);
+  }
 
-    .status-msg {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 1rem;
-      color: #204d1e;
-      min-height: 1em;
-      font-weight: 500;
-    }
-  </style>
+  .plant-img {
+    width:82px;
+    height:62px;
+    background:#d7f5d7;
+    border-radius:14px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+
+  .plant-img img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  .plant-label {
+    background:#244a22;
+    color:white;
+    padding:8px 6px;
+    width:94%;
+    text-align:center;
+    font-size:1rem;
+    border-radius:14px;
+    letter-spacing:0.5px;
+  }
+
+  .status-msg {
+    text-align:center;
+    margin-top:18px;
+    color:#244a22;
+    font-size:1rem;
+    min-height:1em;
+  }
+
+  @media(max-width:600px){
+    .category-header { font-size:1.65rem; }
+    .plant-card { width:46vw; height:185px; }
+    .plant-label { font-size:0.95rem; }
+  }
+</style>
 </head>
 
 <body>
-  <div class="bg-overlay"></div>
 
-  <button class="back-arrow" onclick="window.location.href='UserPlantCategories.html'">
-    <svg height="22" width="28" viewBox="0 0 30 30">
-      <polyline points="20,6 10,15 20,24"
-                fill="none"
-                stroke="#193c10"
-                stroke-width="4"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-    </svg>
-  </button>
+<button class="back-arrow" onclick="window.location.href='UserPlantCategories.html'">
+  <svg width="28" height="28" viewBox="0 0 30 30">
+    <polyline points="20,6 10,15 20,24"
+      fill="none" stroke="#193c10" stroke-width="4"
+      stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
 
-  <div class="container">
-    <div id="categoryTitle" class="category-header">Category</div>
-    <div id="plantGrid" class="plant-grid"></div>
-    <div class="status-msg" id="statusMsg"></div>
-  </div>
+<div class="container">
+  <div id="categoryTitle" class="category-header">Category</div>
 
-  <script>
-    const API_BASE = "https://mygardenbook-backend.onrender.com";
-    const params = new URLSearchParams(window.location.search);
-    const categoryName = params.get("category") || "Category";
+  <div id="plantGrid" class="plant-grid"></div>
+  <div id="statusMsg" class="status-msg"></div>
+</div>
 
-    document.getElementById("categoryTitle").textContent = categoryName;
+<script>
+  const API_BASE = "https://mygardenbook-backend.onrender.com";
 
-    const grid = document.getElementById("plantGrid");
-    const msgEl = document.getElementById("statusMsg");
+  const params = new URLSearchParams(window.location.search);
+  const categoryName = params.get("category") || "Category";
+  document.getElementById("categoryTitle").textContent = categoryName;
 
-    function pick(...v) {
-      return v.find(x => x !== undefined && x !== null && x !== "") || null;
-    }
+  const grid = document.getElementById("plantGrid");
+  const msgEl = document.getElementById("statusMsg");
 
-    function resolveImg(src) {
-      if (!src) return null;
-      if (/^https?:\/\//.test(src)) return src;
-      if (src.startsWith("/")) return API_BASE + src;
-      return src;
-    }
+  function pick(...items){
+    return items.find(v => v !== undefined && v !== null && String(v).trim() !== "") || null;
+  }
 
-    function getId(obj) {
-      return pick(obj.id, obj._id, obj.plantId, obj.plant_id);
-    }
+  function resolveImg(src){
+    if(!src) return null;
+    if(/^https?:\/\//.test(src)) return src;
+    if(src.startsWith("/")) return API_BASE + src;
+    return src;
+  }
 
-    async function loadPlants() {
-      try {
-        const res = await fetch(`${API_BASE}/api/plants`);
-        if (!res.ok) throw new Error("Failed");
+  function getId(obj){
+    return pick(obj.id, obj._id, obj.plantId, obj.plant_id);
+  }
 
-        const all = await res.json();
+  async function loadPlants(){
+    try {
+      const res = await fetch(`${API_BASE}/api/plants`);
+      if(!res.ok) throw new Error("Network Error");
 
-        const filtered = all.filter(p =>
-          pick(p.category, p.categoryName, p.category_name) === categoryName
+      const all = await res.json();
+
+      const filtered = all.filter(p => {
+        const cat = pick(p.category, p.categoryName, p.category_name);
+        return cat && cat.toLowerCase() === categoryName.toLowerCase();
+      });
+
+      if(filtered.length === 0){
+        msgEl.textContent = "No plants found in this category.";
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const img = resolveImg(
+          pick(p.image, p.image_url, p.imageUrl, p.img, p.photo)
         );
 
-        if (filtered.length === 0) {
-          msgEl.textContent = "No plants found in this category.";
-          return;
-        }
+        const label = pick(p.name, p.commonName, p.scientific_name, "Unknown");
 
-        grid.innerHTML = filtered.map(p => {
-          const img = resolveImg(
-            pick(p.image, p.image_url, p.imageUrl, p.img, p.photo)
-          );
-
-          return `
-            <div class="plant-card" onclick="location.href='UserEachPlant.html?id=${encodeURIComponent(getId(p))}'">
-              <div class="plant-img">
-                ${img ? `<img src="${img}">` : `<span style='font-size:1.8em;color:#4A771C;'>&#127793;</span>`}
-              </div>
-              <div class="plant-label">${pick(p.name, p.commonName, p.scientific_name) || "Unknown"}</div>
+        return `
+          <div class="plant-card"
+               onclick="location.href='UserEachPlant.html?id=${encodeURIComponent(getId(p))}'">
+            <div class="plant-img">
+              ${img ? `<img src="${img}">`
+                    : `<span style='font-size:1.6rem;color:#244a22;'>&#127793;</span>`}
             </div>
-          `;
-        }).join("");
+            <div class="plant-label">${label}</div>
+          </div>
+        `;
+      }).join("");
 
-      } catch (err) {
-        msgEl.textContent = "Failed to load plants.";
-      }
+    } catch (err){
+      msgEl.textContent = "Failed to load plants.";
+      console.error(err);
     }
+  }
 
-    loadPlants();
-  </script>
-  <script src="/js/config.js"></script>
+  loadPlants();
+</script>
+
+<script src="/js/config.js"></script>
 </body>
 </html>

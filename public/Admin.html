@@ -7,6 +7,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
   <style>
+
+    /* GLOBAL MOBILE STYLES */
+    @media (max-width: 600px) {
+      body {
+        padding: 0 10px;
+      }
+      .card, .container, .content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 1rem !important;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      button, .btn, .button {
+        width: 100% !important;
+        font-size: 1rem !important;
+      }
+      input, select, textarea {
+        width: 100% !important;
+        font-size: 1rem;
+      }
+    }
+
+    /* EXISTING PAGE CSS */
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Baloo 2','Kalam',sans-serif}
     body{
       background:url('Bg.png') no-repeat center center fixed;
@@ -65,6 +91,7 @@
       .button{font-size:1.05rem;width:80vw;padding:12px}
       .logout-btn{top:12px;right:12px;padding:8px 14px;font-size:.9rem}
     }
+
   </style>
 </head>
 
@@ -85,14 +112,12 @@
   </div>
 
 <script>
-  // Correct API base (no platform detection)
+  // FINAL Backend API
   const API_BASE = "https://mygardenbook-backend.onrender.com";
 
   // ADMIN AUTH CHECK
-  const username = localStorage.getItem("username");
   const role = localStorage.getItem("role");
-
-  if (!username || role !== "admin") {
+  if (role !== "admin") {
     window.location.href = "Login.html";
   }
 
@@ -107,7 +132,7 @@
 
     try {
       const res = await fetch(`${API_BASE}/api/export`);
-      if (!res.ok) throw new Error("Download failed");
+      if (!res.ok) throw new Error();
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -121,7 +146,7 @@
       status.textContent = "✅ Download complete!";
       setTimeout(() => status.style.display="none", 2000);
 
-    } catch(err) {
+    } catch {
       status.textContent = "❌ Failed to download";
       setTimeout(() => status.style.display="none", 2000);
     }

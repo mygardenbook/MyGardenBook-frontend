@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fish Details</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,13 +13,12 @@
 
   body {
     font-family: 'Baloo 2','Kalam',sans-serif;
-    background: url('Bg.png') no-repeat center center fixed;
+    background: url('/Bg.png') no-repeat center center fixed;   /* ✅ Correct path */
     background-size: cover;
     position: relative;
     min-height: 100vh;
     overflow-x: hidden;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* translucent overlay like other pages */
@@ -31,24 +31,29 @@
     z-index: 0;
   }
 
-  /* back arrow (always goes to Login for public QR view) */
+  /* Back button */
   .back-arrow {
     position: fixed;
     top: 16px;
     left: 16px;
-    z-index: 30;
+    z-index: 50;
     background: none;
     border: none;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     display:flex;
     align-items:center;
     justify-content:center;
   }
-  .back-arrow svg polyline { stroke: #262A23; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+  .back-arrow svg polyline {
+    stroke: #262A23;
+    stroke-width:4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
 
-  /* container aligning content neatly */
+  /* Main content wrapper */
   .container {
     position: relative;
     z-index: 5;
@@ -59,13 +64,13 @@
     min-height: 100vh;
   }
 
-  /* flip card (same style as PlantView) */
+  /* Flip card */
   .flip-card {
-    width: 70%;
+    width: 75%;
     max-width: 360px;
     aspect-ratio: 4 / 3;
     perspective: 1200px;
-    margin-top: 5rem;
+    margin-top: 5.3rem;
     cursor: pointer;
     z-index: 10;
   }
@@ -96,8 +101,6 @@
     overflow:hidden;
   }
 
-  .flip-front img, .flip-back img { width:100%; height:100%; object-fit:cover; display:block; }
-
   .flip-back {
     transform: rotateY(180deg);
     background: rgba(143,216,113,0.35);
@@ -107,8 +110,8 @@
   }
 
   .qr-flip {
-    width: 132px;
-    height: 132px;
+    width: 130px;
+    height: 130px;
     border-radius: 12px;
     background: #fff;
     padding: 6px;
@@ -117,14 +120,13 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
   }
 
-  /* details card that matches PlantView design */
+  /* Details section */
   .details {
-    width: 86%;
+    width: 88%;
     max-width: 520px;
-    margin-top: 1.5rem;
+    margin-top: 1.6rem;
     color: #262A23;
     font-size: 1.05rem;
-    z-index: 5;
   }
 
   .details p { margin-bottom: 0.45rem; }
@@ -140,19 +142,17 @@
     box-shadow: 0 4px 14px rgba(72,148,66,0.06);
   }
 
-  /* AI section - same visual language */
+  /* AI section */
   .ai-section {
-    width: 86%;
+    width: 88%;
     max-width: 520px;
     background: rgba(143,216,113,0.28);
     border-radius: 16px;
     box-shadow: 0 2px 10px rgba(183,218,184,0.5);
     padding: 1rem;
     margin: 2rem 0 4rem 0;
-    z-index: 5;
   }
 
-  .ai-section label { display:block; margin-bottom: 0.4rem; font-weight:600; color:#27421b; }
   .ai-section textarea {
     width:100%;
     border-radius:12px;
@@ -163,6 +163,7 @@
     background:#fff;
     outline:none;
   }
+
   .ai-section button {
     margin-top: 0.6rem;
     background: #BFE7BC;
@@ -173,124 +174,95 @@
     font-size: 1rem;
   }
 
-  /* responsive adjustments */
+  /* RESPONSIVE */
   @media (max-width: 780px) {
-    .flip-card { width: 82%; max-width: 420px; }
-    .details, .ai-section { width: 92%; }
-    .qr-flip { width: 110px; height: 110px; }
+    .flip-card { width: 88%; }
+    .details, .ai-section { width: 94%; }
   }
 
-  @media (max-width: 420px) {
-    .flip-card { margin-top: 4.2rem; }
-    .qr-flip { width: 96px; height: 96px; }
+  @media (max-width: 430px) {
+    .qr-flip { width: 100px; height: 100px; }
+    .flip-card { margin-top: 4.3rem; }
   }
 </style>
 </head>
 <body>
 
-<!-- Back arrow: public QR view returns to Login -->
+<!-- Back arrow -->
 <button class="back-arrow" onclick="window.location.href='Login.html'" aria-label="Back to login">
-  <svg viewBox="0 0 30 30" width="56" height="56" aria-hidden="true">
+  <svg viewBox="0 0 30 30" width="56" height="56">
     <polyline points="20,6 10,15 20,24" fill="none"></polyline>
   </svg>
 </button>
 
 <div class="container">
 
-  <!-- Flip card -->
-  <div class="flip-card" id="flipCard" title="Tap to flip QR">
-    <div class="flip-inner" id="flipInner">
-      <div class="flip-front" aria-hidden="false">
+  <!-- Flip Card -->
+  <div class="flip-card" id="flipCard">
+    <div class="flip-inner">
+      <div class="flip-front">
         <img id="fishImage" src="placeholder.jpg" alt="Fish image">
       </div>
-      <div class="flip-back" aria-hidden="true">
+
+      <div class="flip-back">
         <img id="fishQR" class="qr-flip" src="qr_placeholder.png" alt="QR code">
-        <p style="color:#1f2715; font-weight:600; margin:0.35rem 0 0 0;">Scan Me</p>
+        <p style="color:#1f2715; font-weight:600;">Scan Me</p>
       </div>
     </div>
   </div>
 
   <!-- Details -->
-  <div class="details" role="region" aria-labelledby="fishNameHeading">
-    <p id="fishNameHeading" style="font-size:1.35rem; font-weight:700; margin-bottom:0.6rem;">Loading...</p>
+  <div class="details">
+    <p id="fishNameHeading" style="font-size:1.4rem;font-weight:700;margin-bottom:0.7rem;">Loading...</p>
 
     <p><b>Scientific Name:</b> <span id="scientificName">Loading...</span></p>
     <p><b>Category:</b> <span id="category">Loading...</span></p>
 
-    <p style="font-weight:bold; margin-top:0.9rem;">Description</p>
+    <p style="font-weight:bold;margin-top:0.9rem;">Description</p>
     <div class="green-box" id="description">Loading...</div>
   </div>
 
   <!-- AI Section -->
-  <div class="ai-section" aria-live="polite">
+  <div class="ai-section">
     <label for="aiQuestion">Ask AI</label>
     <textarea id="aiQuestion" placeholder="Ask something about this fish..."></textarea>
-    <button id="aiBtn" onclick="handleUniversalAI()">Chat with AI</button>
-
+    <button onclick="handleUniversalAI()">Chat with AI</button>
     <div id="aiResponse" style="background:#fff;padding:1rem;border-radius:10px;margin-top:0.6rem;max-height:220px;overflow-y:auto;"></div>
   </div>
 </div>
 
 <script>
-  // Robust public FishView (Option F2)
   const API_BASE = "https://mygardenbook-backend.onrender.com";
 
-  // Accept either singular or plural endpoints (fallback)
   async function fetchFishById(id) {
-    const candidates = [
-      `${API_BASE}/api/fish/${encodeURIComponent(id)}`,
-      `${API_BASE}/api/fishes/${encodeURIComponent(id)}`
+    const urls = [
+      `${API_BASE}/api/fish/${id}`,
+      `${API_BASE}/api/fishes/${id}`
     ];
-
-    let lastErr = null;
-    for (const url of candidates) {
+    for (const u of urls) {
       try {
-        const res = await fetch(url);
-        if (!res.ok) {
-          // if 404 or 400, try next; otherwise throw
-          lastErr = new Error(`Status ${res.status} from ${url}`);
-          continue;
-        }
-        const json = await res.json();
-        return json;
-      } catch (err) {
-        lastErr = err;
-      }
+        const r = await fetch(u);
+        if (r.ok) return r.json();
+      } catch {}
     }
-    throw lastErr || new Error("Failed to fetch fish");
+    throw new Error("Unable to load fish");
   }
 
-  // Helper: pick first non-empty field
-  function pick(...fields) {
-    for (const f of fields) {
-      if (f !== undefined && f !== null && String(f).trim() !== "") return f;
-    }
+  function pick(...v) {
+    for (const x of v) if (x && String(x).trim() !== "") return x;
     return null;
   }
 
-  // Resolve possibly-relative image paths returned by backend
   function resolveImg(src) {
     if (!src) return null;
-    try {
-      const s = String(src).trim();
-      if (s.startsWith("http://") || s.startsWith("https://")) return s;
-      // leading slash — construct absolute using API_BASE origin
-      if (s.startsWith("/")) {
-        const origin = new URL(API_BASE).origin;
-        return origin.replace(/\/$/, "") + s;
-      }
-      // otherwise return as-is (may be relative to site)
-      return s;
-    } catch (e) {
-      return src;
-    }
+    if (src.startsWith("http")) return src;
+    if (src.startsWith("/")) return API_BASE + src;
+    return src;
   }
 
-  // Read id from URL
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
   const fishId = params.get("id");
 
-  // DOM refs
   const fishImage = document.getElementById("fishImage");
   const fishQR = document.getElementById("fishQR");
   const nameHeading = document.getElementById("fishNameHeading");
@@ -298,62 +270,31 @@
   const catEl = document.getElementById("category");
   const descEl = document.getElementById("description");
 
-  // Flip behavior (front <-> back)
   const flipCard = document.getElementById("flipCard");
-  flipCard.addEventListener("click", () => {
-    flipCard.classList.toggle("flipped");
-  });
-  // keyboard accessibility: Enter/Space flips
-  flipCard.tabIndex = 0;
-  flipCard.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      flipCard.classList.toggle("flipped");
-    }
-  });
+  flipCard.addEventListener("click", () => flipCard.classList.toggle("flipped"));
 
   async function loadFish() {
-    if (!fishId) {
-      nameHeading.textContent = "Invalid fish id";
-      descEl.textContent = "No fish id provided in URL.";
-      return;
-    }
-
     try {
       const fish = await fetchFishById(fishId);
 
-      // backend field permutations
-      const imageSrc = pick(fish.image, fish.image_url, fish.imageUrl, fish.img, fish.photo, fish.photo_url);
-      const qrSrc = pick(fish.qr_code_url, fish.qrCode, fish.qrCodeUrl, fish.qr, fish.qr_code);
-      const name = pick(fish.name, fish.commonName, fish.common_name, fish.title) || "Unnamed Fish";
-      const scientific = pick(fish.scientific_name, fish.scientificName, fish.sci_name) || "N/A";
-      const category = pick(fish.category, fish.categoryName, fish.category_name) || "Uncategorized";
-      const description = pick(fish.description, fish.desc, fish.details) || "No description available.";
+      fishImage.src = resolveImg(pick(fish.image, fish.image_url, fish.img)) || "placeholder.jpg";
+      fishQR.src = resolveImg(pick(fish.qr_code_url, fish.qr)) || "qr_placeholder.png";
 
-      // set UI
-      fishImage.src = resolveImg(imageSrc) || "placeholder.jpg";
-      fishImage.alt = name;
-      fishQR.src = resolveImg(qrSrc) || "qr_placeholder.png";
-      fishQR.alt = `${name} QR code`;
-
-      nameHeading.textContent = name;
-      sciEl.textContent = scientific;
-      catEl.textContent = category;
-      descEl.textContent = description;
-    } catch (err) {
-      console.error("Error loading fish:", err);
-      nameHeading.textContent = "Failed to load fish";
-      descEl.textContent = "There was a problem loading fish details. (Check backend/API)";
-      sciEl.textContent = "—";
-      catEl.textContent = "—";
-      fishImage.src = "placeholder.jpg";
-      fishQR.src = "qr_placeholder.png";
+      nameHeading.textContent = pick(fish.name, fish.commonName) || "Unnamed Fish";
+      sciEl.textContent = pick(fish.scientific_name, fish.scientificName) || "N/A";
+      catEl.textContent = pick(fish.category, fish.category_name) || "Uncategorized";
+      descEl.textContent = pick(fish.description, fish.desc) || "No description available.";
+    } catch {
+      nameHeading.textContent = "Error loading fish";
+      descEl.textContent = "Unable to load fish details.";
     }
   }
 
   loadFish();
 </script>
+
 <script src="/js/config.js"></script>
-<script src="js/chat.js"></script>
+<script src="/js/chat.js"></script>
+
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fish Details</title>
+<title>Plant Details</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -33,12 +33,12 @@
     position: fixed;
     top: 16px;
     left: 16px;
-    z-index: 10;
+    z-index: 20;
     background: none;
     border: none;
     cursor: pointer;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
 
   .container {
@@ -53,12 +53,11 @@
   /* Flip card */
   .flip-card {
     width: 70%;
-    max-width: 320px;
+    max-width: 340px;
     aspect-ratio: 4 / 3;
     perspective: 1200px;
     margin-top: 5rem;
     cursor: pointer;
-    z-index: 3;
   }
 
   .flip-inner {
@@ -90,7 +89,6 @@
   .flip-front img {
     width: 100%; height: 100%;
     object-fit: cover;
-    border-radius: 20px;
   }
 
   .flip-back {
@@ -113,32 +111,30 @@
   /* Details */
   .details {
     width: 85%;
-    max-width: 420px;
+    max-width: 460px;
     color: #262A23;
     font-size: 1.1rem;
     margin-top: 1.5rem;
-    z-index: 5;
   }
 
   .green-box {
     background: rgba(143,216,113,0.35);
-    border-radius: 20px;
+    border-radius: 18px;
     padding: 0.9rem 1rem;
     margin-top: 0.3rem;
     font-size: 1rem;
-    line-height: 1.4rem;
+    line-height: 1.45rem;
   }
 
   /* AI section */
   .ai-section {
     width: 85%;
-    max-width: 420px;
+    max-width: 460px;
     background: rgba(143, 216, 113, 0.3);
     border-radius: 20px;
     box-shadow: 0 2px 10px rgba(183,218,184,0.6);
     padding: 1rem;
     margin: 2rem 0;
-    z-index: 5;
   }
 
   .ai-section textarea {
@@ -166,7 +162,7 @@
 
 <body>
 
-<!-- Back always goes to Login -->
+<!-- Back button (same as FishView) -->
 <button class="back-arrow" onclick="window.location.href='Login.html'">
   <svg viewBox="0 0 30 30" width="100%" height="100%">
     <polyline points="20,6 10,15 20,24"
@@ -184,11 +180,11 @@
   <div class="flip-card" id="flipCard">
     <div class="flip-inner">
       <div class="flip-front">
-        <img id="fishImage" src="placeholder.jpg" alt="Fish image">
+        <img id="plantImage" src="placeholder.jpg" alt="Plant image">
       </div>
 
       <div class="flip-back">
-        <img id="fishQR" class="qr-flip" src="qr_placeholder.png">
+        <img id="plantQR" class="qr-flip" src="qr_placeholder.png" alt="QR Code">
         <p>Scan Me!</p>
       </div>
     </div>
@@ -204,13 +200,14 @@
     <div class="green-box" id="description">Loading...</div>
   </div>
 
-  <!-- AI -->
+  <!-- AI Section -->
   <div class="ai-section">
     <label>Ask AI</label>
-    <textarea id="aiQuestion" placeholder="Ask something about this fish..."></textarea>
+    <textarea id="aiQuestion" placeholder="Ask something about this plant..."></textarea>
     <button onclick="handleUniversalAI()">Chat with AI</button>
 
-    <div id="aiResponse" style="background:#fff;padding:1rem;border-radius:10px;max-height:200px;overflow-y:auto;"></div>
+    <div id="aiResponse"
+         style="background:#fff;padding:1rem;border-radius:10px;max-height:200px;overflow-y:auto;"></div>
   </div>
 
 </div>
@@ -219,31 +216,37 @@
   const API_BASE = "https://mygardenbook-backend.onrender.com";
 
   const params = new URLSearchParams(window.location.search);
-  const fishId = params.get("id");
+  const plantId = params.get("id");
 
-  async function loadFish() {
+  const plantImage = document.getElementById("plantImage");
+  const plantQR = document.getElementById("plantQR");
+  const scientificName = document.getElementById("scientificName");
+  const commonName = document.getElementById("commonName");
+  const category = document.getElementById("category");
+  const description = document.getElementById("description");
+
+  async function loadPlant() {
     try {
-      const res = await fetch(`${API_BASE}/api/fish/${fishId}`);
-      const fish = await res.json();
+      const res = await fetch(`${API_BASE}/api/plants/${plantId}`);
+      const plant = await res.json();
 
-      fishImage.src = fish.image_url || "placeholder.jpg";
-      fishQR.src = fish.qr_code_url || "qr_placeholder.png";
-      scientificName.textContent = fish.scientific_name || "N/A";
-      commonName.textContent = fish.name || "N/A";
-      category.textContent = fish.category || "N/A";
-      description.textContent = fish.description || "No description available.";
+      plantImage.src = plant.image_url || plant.image || "placeholder.jpg";
+      plantQR.src = plant.qr_code_url || plant.qr || "qr_placeholder.png";
 
+      scientificName.textContent = plant.scientific_name || "N/A";
+      commonName.textContent = plant.name || plant.common_name || "N/A";
+      category.textContent = plant.category || "N/A";
+      description.textContent = plant.description || "No description available.";
     } catch (err) {
-      console.error("Fish load error:", err);
-      description.textContent = "Failed to load fish details.";
+      console.error("Plant load error:", err);
+      description.textContent = "Failed to load plant details.";
     }
   }
 
-  document.getElementById("flipCard").addEventListener("click", () => {
-    document.getElementById("flipCard").classList.toggle("flipped");
-  });
+  document.getElementById("flipCard")
+    .addEventListener("click", () => document.getElementById("flipCard").classList.toggle("flipped"));
 
-  loadFish();
+  loadPlant();
 </script>
 
 <script src="js/chat.js"></script>

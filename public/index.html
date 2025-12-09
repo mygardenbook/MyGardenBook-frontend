@@ -1,78 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Garden Book</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      margin: 0;
-      padding: 0;
       min-height: 100vh;
-      font-family: 'Baloo 2', 'Kalam', 'Arial', sans-serif;
-      background: url('Bg.png') no-repeat center center fixed;
+      font-family: 'Baloo 2','Kalam','Arial',sans-serif;
+      background: url('/Bg.png') no-repeat center center fixed;   /* ✅ Correct path */
       background-size: cover;
+      overflow-x: hidden;
       position: relative;
-      overflow: hidden;
     }
 
+    /* White translucent overlay */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: #fff;
-      opacity: 0.7;
+      background: rgba(255,255,255,0.7);
       z-index: 0;
     }
 
+    /* Center content */
     .container {
       position: relative;
-      z-index: 1;
+      z-index: 2;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
       text-align: center;
+      padding: 1rem;
     }
 
     .title {
       font-size: 2.8rem;
       font-family: 'Kalam', cursive;
+      font-weight: bold;
       color: #4A771C;
       text-shadow: 1px 1px 0 #fff, 2px 2px 8px #88976B3D;
+      margin-bottom: 2.3rem;
       letter-spacing: 2px;
-      font-weight: bold;
-      margin-bottom: 2.5rem;
     }
 
     .login-box {
-      background: rgba(143, 216, 113, 0.5);
+      background: rgba(143,216,113,0.5);
       border-radius: 20px;
       box-shadow: 0 4px 20px 2px #B7DAB8;
       padding: 2rem 3rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 2rem;
       min-width: 270px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .login-btn {
       background: #BFE7BC;
-      color: #262A23;
       border: none;
       border-radius: 20px;
-      padding: 0.9rem 2.2rem;
+      padding: 0.9rem 2rem;
       font-size: 1.25rem;
-      font-family: 'Baloo 2', 'Kalam', cursive, sans-serif;
+      font-family: 'Baloo 2', cursive;
       cursor: pointer;
-      min-width: 135px;
-      transition: background 0.2s, color 0.2s;
+      color: #262A23;
+      transition: background 0.2s ease, color 0.2s ease;
+      min-width: 150px;
     }
 
     .login-btn:hover {
@@ -80,18 +81,19 @@
       color: #fff;
     }
 
+    /* MOBILE RESPONSIVE */
     @media (max-width: 600px) {
       .title {
-        font-size: 1.9rem;
+        font-size: 2rem;
         margin-bottom: 1.5rem;
       }
       .login-box {
-        min-width: 80vw;
-        padding: 1.3rem;
+        width: 80vw;
+        padding: 1.4rem;
       }
       .login-btn {
         font-size: 1.1rem;
-        padding: 0.8rem 1.3rem;
+        padding: 0.8rem 1.5rem;
       }
     }
   </style>
@@ -100,13 +102,14 @@
 <body>
   <div class="container">
     <div class="title">My Garden Book</div>
+
     <div class="login-box">
       <button class="login-btn" onclick="window.location.href='Login.html'">Login</button>
     </div>
   </div>
 
   <script>
-    // Auto redirect if user already logged in
+    // Auto redirect if already logged in
     const role = localStorage.getItem("role");
 
     if (role === "admin") {
@@ -115,6 +118,7 @@
       window.location.href = "User.html";
     }
   </script>
-<script src="/js/config.js"></script>
+
+  <script src="/js/config.js"></script>
 </body>
 </html>

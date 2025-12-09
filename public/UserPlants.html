@@ -88,7 +88,7 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     text-align:center;
     cursor:pointer;
-    transition:transform .15s ease;
+    transition: transform .15s ease;
   }
 
   .card:hover { transform: scale(1.04); }
@@ -105,6 +105,11 @@
     margin-top: 0.5rem;
     font-size: 1.05rem;
     color: #1A2B10;
+  }
+
+  @media (max-width:600px) {
+    .grid { gap: 0.8rem; }
+    .card img { width: 64px; height: 64px; }
   }
 </style>
 
@@ -139,11 +144,26 @@
 <script>
   const API_BASE = "https://mygardenbook-backend.onrender.com";
 
+  function pick(...values) {
+    return values.find(v => v !== undefined && v !== null && String(v).trim() !== "") || null;
+  }
+
+  function resolveImg(src) {
+    if (!src) return null;
+    if (src.startsWith("http")) return src;
+    if (src.startsWith("/")) return API_BASE + src;
+    return src;
+  }
+
+  function plantId(p) {
+    return pick(p.id, p._id, p.plantId, p.plant_id);
+  }
+
   async function loadPlants() {
     const res = await fetch(`${API_BASE}/api/plants`);
     const plants = await res.json();
+    window.allPlants = plants;
     renderPlants(plants);
-    window.allPlants = plants; // Save for filtering
   }
 
   function renderPlants(plants) {
@@ -156,13 +176,17 @@
     }
 
     plants.forEach(p => {
+      const img = resolveImg(pick(p.image, p.image_url, p.imageUrl, p.img, p.photo));
+      const name = pick(p.name, p.commonName, p.scientific_name) || "Unknown";
+
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <img src="${p.image_url || 'placeholder.jpg'}" />
-        <div class="card-name">${p.name}</div>
+        <img src="${img || 'placeholder.jpg'}" />
+        <div class="card-name">${name}</div>
       `;
-      card.onclick = () => window.location.href = `UserEachPlant.html?id=${p.id}`;
+      card.onclick = () =>
+        window.location.href = `UserEachPlant.html?id=${encodeURIComponent(plantId(p))}`;
       grid.appendChild(card);
     });
   }
@@ -170,7 +194,7 @@
   function filterPlants() {
     const q = document.getElementById("searchInput").value.toLowerCase();
     const filtered = window.allPlants.filter(p =>
-      p.name.toLowerCase().includes(q) ||
+      (pick(p.name, p.commonName, p.scientific_name) || "").toLowerCase().includes(q) ||
       (p.category || "").toLowerCase().includes(q)
     );
     renderPlants(filtered);
@@ -178,6 +202,7 @@
 
   loadPlants();
 </script>
+
 <script src="/js/config.js"></script>
 
 </body>

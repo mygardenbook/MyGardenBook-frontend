@@ -14,19 +14,21 @@
       height: 100%;
       font-family: 'Baloo 2','Kalam',sans-serif;
       overflow-x: hidden;
-      overflow-y: auto;
+      background: none;
     }
 
+    /* Background Image + Overlay */
     .background-overlay {
       position: fixed;
-      z-index: 0;
       width: 100%;
       height: 100%;
       top: 0;
       left: 0;
+      z-index: 0;
       background: url('Bg.png') no-repeat center center fixed;
       background-size: cover;
     }
+
     .background-overlay::after {
       content: "";
       position: absolute;
@@ -39,11 +41,12 @@
       z-index: 1;
     }
 
+    /* Back Arrow */
     .back-arrow {
-      position: absolute;
-      top: 1.8rem;
-      left: 2rem;
-      z-index: 3;
+      position: fixed;
+      top: 1.6rem;
+      left: 1.6rem;
+      z-index: 5;
       cursor: pointer;
       background: none;
       border: none;
@@ -54,9 +57,10 @@
       justify-content: center;
     }
 
+    /* Main Layout */
     .container {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -71,8 +75,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 2.2rem;
+      gap: 2rem;
       margin-top: 2rem;
     }
 
@@ -96,11 +99,12 @@
       transform: scale(1.03);
     }
 
+    /* MOBILE RESPONSIVENESS */
     @media (max-width: 600px) {
       .menu-btn {
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         min-width: 80vw;
-        padding: 0.8rem;
+        padding: 0.85rem;
       }
       .buttons-group { gap: 1.3rem; }
       .back-arrow {
@@ -108,6 +112,12 @@
         height: 28px;
         top: 1rem;
         left: 1rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .menu-btn {
+        min-width: 90vw;
       }
     }
   </style>
@@ -132,16 +142,17 @@
   </div>
 
 <script>
-  const role = localStorage.getItem("role");
-  if (!role) {
-    window.location.href = "Login.html";
-  } else if (role !== "user") {
-    window.location.href = "Admin.html";
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const role = localStorage.getItem("role");
+
+    if (!role) {
+      window.location.href = "Login.html";
+    } else if (role !== "user") {
+      window.location.href = "Admin.html";
+    }
+  });
 </script>
 
-<!-- FIXED PATH -->
 <script src="js/config.js"></script>
-
 </body>
 </html>

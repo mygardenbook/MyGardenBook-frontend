@@ -4,68 +4,63 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Fish Categories</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body, html {
+  html, body {
     width: 100%;
     min-height: 100vh;
-    font-family: 'Baloo 2', 'Kalam', 'Arial', sans-serif;
-    background: url('Bg.png') no-repeat center center fixed;
-    background-size: cover;
+    font-family: 'Baloo 2','Kalam',sans-serif;
+    background: url('Bg.png') center/cover no-repeat fixed;
     overflow-x: hidden;
     position: relative;
   }
 
-  .overlay {
+  /* Background overlay */
+  body::before {
+    content: "";
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: #fff;
-    opacity: 0.7;
+    background: rgba(255,255,255,0.7);
     z-index: 0;
-    pointer-events: none;
   }
 
+  /* Back Button */
   .back-arrow {
     position: fixed;
-    top: 3vw;
-    left: 3vw;
+    top: 16px; left: 16px;
     z-index: 5;
     background: none;
     border: none;
     cursor: pointer;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
+    width: 36px; height: 36px;
   }
 
   .title-bar {
     background: #BFE7BC;
-    border-radius: 20px;
+    border-radius: 22px;
     font-size: 1.8rem;
-    color: #262A23;
+    color: #1f2a15;
     text-align: center;
     width: 80%;
-    max-width: 350px;
+    max-width: 360px;
     margin: 6.5rem auto 2rem auto;
     padding: 0.8rem 0.5rem;
+    font-family: 'Baloo 2','Kalam';
     position: relative;
     z-index: 2;
-    font-family: 'Baloo 2', 'Kalam', cursive;
   }
 
   .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.8rem;
-    justify-items: center;
-    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.4rem;
     width: 90%;
-    max-width: 600px;
+    max-width: 620px;
     margin: 0 auto 3rem auto;
     position: relative;
     z-index: 2;
@@ -74,135 +69,144 @@
   .category-card {
     background: #BFE7BC;
     border-radius: 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 1rem 0.8rem 1.2rem 0.8rem;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem 1rem 1.2rem 1rem;
-    transition: transform 0.2s ease;
-    width: 100%;
-    max-width: 170px;
-    cursor: pointer;
+    transition: transform .2s ease;
   }
 
   .category-card:hover {
-    transform: scale(1.03);
+    transform: scale(1.05);
   }
 
   .category-img {
-    width: 100px;
-    height: 80px;
-    border-radius: 12px;
+    width: 95px;
+    height: 70px;
+    border-radius: 14px;
     object-fit: cover;
     background: #fff;
     border: 2px solid #4A771C;
     margin-bottom: 0.8rem;
   }
 
-  .category-btn {
-    background: #BFE7BC;
-    border: none;
-    border-radius: 20px;
-    font-size: 1rem;
-    color: #262A23;
-    font-family: 'Baloo 2', 'Kalam', cursive, sans-serif;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    padding: 0.4rem 1.2rem;
-  }
-
-  .category-btn:hover {
-    background: #b3e572;
+  .category-name {
+    background: #244a22;
     color: #fff;
+    padding: 8px 14px;
+    border-radius: 16px;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
   }
 
+  /* Mobile adjustments */
   @media (max-width: 600px) {
     .title-bar {
+      margin-top: 5.5rem;
       font-size: 1.4rem;
-      width: 85%;
-      margin: 5.5rem auto 1.5rem auto;
     }
-    .category-grid { gap: 1.2rem; }
-    .category-card { max-width: 140px; padding: 0.8rem; }
-    .category-img { width: 80px; height: 65px; }
-    .category-btn { font-size: 0.9rem; padding: 0.3rem 1rem; }
-    .back-arrow { width: 28px; height: 28px; top: 10px; left: 12px; }
+    .category-img {
+      width: 80px;
+      height: 60px;
+    }
+    .category-card {
+      padding: 0.85rem;
+    }
   }
 </style>
 </head>
 
 <body>
-  <div class="overlay"></div>
 
-  <button class="back-arrow" onclick="window.location.href='UserFishes.html'" aria-label="Go back">
-    <svg viewBox="0 0 30 30" width="100%" height="100%">
-      <polyline points="20,6 10,15 20,24" fill="none" stroke="#262A23"
-                stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
+<button class="back-arrow" onclick="window.location.href='UserFishes.html'">
+  <svg viewBox="0 0 30 30" width="100%" height="100%">
+    <polyline points="20,6 10,15 20,24"
+      fill="none" stroke="#262A23" stroke-width="4"
+      stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
 
-  <div class="title-bar">Fish Categories</div>
+<div class="title-bar">Fish Categories</div>
 
-  <div class="category-grid" id="fishCategoryGrid">
-    <div class="category-card">
-      <img src="camera.png" class="category-img" alt="Freshwater">
-      <div class="category-btn">Freshwater</div>
-    </div>
-    <div class="category-card">
-      <img src="camera.png" class="category-img" alt="Saltwater">
-      <div class="category-btn">Saltwater</div>
-    </div>
-    <div class="category-card">
-      <img src="camera.png" class="category-img" alt="Tropical">
-      <div class="category-btn">Tropical</div>
-    </div>
-  </div>
+<div class="category-grid" id="fishCategoryGrid">
+  <p style="text-align:center; width:100%; font-size:1.1rem; color:#244a22;">
+    Loading categories...
+  </p>
+</div>
 
 <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
-  const grid = document.getElementById("fishCategoryGrid");
+const API_BASE = "https://mygardenbook-backend.onrender.com";
+const grid = document.getElementById("fishCategoryGrid");
 
-  function resolveImg(src) {
-    if (!src) return null;
-    if (src.startsWith("http://") || src.startsWith("https://")) return src;
-    if (src.startsWith("/")) return API_BASE.replace(/\/$/, "") + src;
-    return src;
-  }
+function pick(...values) {
+  return values.find(v => v !== undefined && v !== null && String(v).trim() !== "") || null;
+}
 
-  async function loadFishCategories() {
-    try {
-      const res = await fetch(`${API_BASE}/api/fishes`);
-      if (!res.ok) throw new Error("Failed to load fishes");
-      const fishes = await res.json();
+function resolveImg(src) {
+  if (!src) return null;
+  if (/^https?:\/\//.test(src)) return src;       // absolute URL
+  if (src.startsWith("/")) return API_BASE + src; // backend-relative
+  return src;                                     // local
+}
 
-      const categories = [...new Set((fishes || []).map(f => f.category || f.category_name || f.categoryName).filter(Boolean))];
-      if (categories.length === 0) return; // keep placeholders if no data
+async function loadFishCategories() {
+  try {
+    const res = await fetch(`${API_BASE}/api/fishes`);
+    if (!res.ok) throw new Error("Failed fetching fishes");
 
-      grid.innerHTML = "";
-      categories.forEach(cat => {
-        // find a representative image for category
-        const rep = (fishes || []).find(f => (f.category || f.category_name || f.categoryName) === cat);
-        const img = rep && (rep.image || rep.image_url || rep.imageUrl || rep.photo || rep.img);
-        const resolved = resolveImg(img) || "camera.png";
+    const fishes = await res.json();
+    const categories = [...new Set(
+      fishes.map(f => pick(f.category, f.category_name, f.categoryName))
+            .filter(Boolean)
+    )];
 
-        const card = document.createElement("div");
-        card.className = "category-card";
-        card.innerHTML = `
-          <img src="${resolved}" class="category-img" alt="${cat}">
-          <div class="category-btn">${cat}</div>
-        `;
-        card.onclick = () => {
-          window.location.href = `UserEachFishCategory.html?category=${encodeURIComponent(cat)}`;
-        };
-        grid.appendChild(card);
-      });
-    } catch (err) {
-      console.error("Error fetching fish categories:", err);
+    if (categories.length === 0) {
+      grid.innerHTML = "<p>No categories available.</p>";
+      return;
     }
-  }
 
-  loadFishCategories();
+    grid.innerHTML = "";
+
+    categories.forEach(cat => {
+      const sample = fishes.find(f => pick(f.category, f.category_name, f.categoryName) === cat);
+
+      const img = pick(
+        sample?.image,
+        sample?.image_url,
+        sample?.imageUrl,
+        sample?.img,
+        sample?.photo
+      );
+
+      const finalImg = resolveImg(img) || "camera.png";
+
+      const card = document.createElement("div");
+      card.className = "category-card";
+
+      card.innerHTML = `
+        <img src="${finalImg}" class="category-img" alt="${cat}">
+        <div class="category-name">${cat}</div>
+      `;
+
+      card.onclick = () => {
+        window.location.href =
+          `UserEachFishCategory.html?category=${encodeURIComponent(cat)}`;
+      };
+
+      grid.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error("Category load error:", err);
+    grid.innerHTML = "<p>Error loading categories.</p>";
+  }
+}
+
+loadFishCategories();
 </script>
+
 <script src="/js/config.js"></script>
 </body>
 </html>
