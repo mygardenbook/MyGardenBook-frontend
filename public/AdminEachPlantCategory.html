@@ -191,7 +191,7 @@
         card.className = "plant-card";
 
         card.onclick = () =>
-          location.href = `AdminEditPlant.html?id=${encodeURIComponent(p.id)}`;
+          location.href = `AdminAddEditPlant.html?id=${encodeURIComponent(p.id)}`;
 
         card.innerHTML = `
           <img class="plant-img" src="${p.image || 'placeholder.jpg'}" alt="${p.commonName}">

@@ -1,6 +1,9 @@
+/* =============================================================
+   login.js — FINAL (Supabase Auth: User + Admin)
+============================================================= */
+
 const SUPABASE_URL = window.__ENV.SUPABASE_URL;
 const SUPABASE_ANON_KEY = window.__ENV.SUPABASE_ANON_KEY;
-const API_BASE = window.__ENV.API_BASE;
 
 // Supabase client
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -10,30 +13,29 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------
      ELEMENTS
   ---------------------------- */
-  const userTab = document.getElementById('userTab');
-  const adminTab = document.getElementById('adminTab');
-  const formSlider = document.getElementById('formSlider');
+  const userTab = document.getElementById("userTab");
+  const adminTab = document.getElementById("adminTab");
+  const formSlider = document.getElementById("formSlider");
 
-  const uLoginBtn = document.getElementById('uLoginBtn');
-  const uSignupBtn = document.getElementById('uSignupBtn');
+  const uLoginBtn = document.getElementById("uLoginBtn");
+  const uSignupBtn = document.getElementById("uSignupBtn");
 
-  const userLoginForm = document.getElementById('userLoginForm');
-  const userSignupForm = document.getElementById('userSignupForm');
-  const adminLoginForm = document.getElementById('adminLoginForm');
+  const userLoginForm = document.getElementById("userLoginForm");
+  const userSignupForm = document.getElementById("userSignupForm");
+  const adminLoginForm = document.getElementById("adminLoginForm");
 
-  const userLoginEmail = document.getElementById('userLoginEmail');
-  const userLoginPass = document.getElementById('userLoginPass');
-  const userLoginMsg = document.getElementById('userLoginMsg');
+  const userLoginEmail = document.getElementById("userLoginEmail");
+  const userLoginPass = document.getElementById("userLoginPass");
+  const userLoginMsg = document.getElementById("userLoginMsg");
 
-  const userSignupEmail = document.getElementById('userSignupEmail');
-  const userSignupPass = document.getElementById('userSignupPass');
-  const userSignupConfirm = document.getElementById('userSignupConfirm');
-  const userSignupMsg = document.getElementById('userSignupMsg');
+  const userSignupEmail = document.getElementById("userSignupEmail");
+  const userSignupPass = document.getElementById("userSignupPass");
+  const userSignupConfirm = document.getElementById("userSignupConfirm");
+  const userSignupMsg = document.getElementById("userSignupMsg");
 
-  const adminEmail = document.getElementById('adminEmail');
-  const adminPass = document.getElementById('adminPass');
-  const adminMsg = document.getElementById('adminMsg');
-
+  const adminEmail = document.getElementById("adminEmail");
+  const adminPass = document.getElementById("adminPass");
+  const adminMsg = document.getElementById("adminMsg");
 
   /* ---------------------------
      TAB SWITCHING
@@ -50,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
     userTab.classList.remove("active");
   };
 
-  /* User login/signup toggle */
   uLoginBtn.onclick = () => {
     uLoginBtn.classList.add("active");
     uSignupBtn.classList.remove("active");
@@ -65,21 +66,21 @@ document.addEventListener("DOMContentLoaded", () => {
     userLoginForm.style.display = "none";
   };
 
-
   /* ---------------------------
      USER LOGIN
   ---------------------------- */
   userLoginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    userLoginMsg.style.color = "#333";
     userLoginMsg.textContent = "Signing in...";
 
     const email = userLoginEmail.value.trim();
-    const pass = userLoginPass.value.trim();
+    const password = userLoginPass.value.trim();
 
     const { data, error } = await client.auth.signInWithPassword({
       email,
-      password: pass
+      password
     });
 
     if (error) {
@@ -94,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "User.html";
   });
 
-
   /* ---------------------------
      USER SIGNUP
   ---------------------------- */
@@ -102,10 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const email = userSignupEmail.value.trim();
-    const pass = userSignupPass.value.trim();
+    const password = userSignupPass.value.trim();
     const confirm = userSignupConfirm.value.trim();
 
-    if (pass !== confirm) {
+    if (password !== confirm) {
       userSignupMsg.style.color = "red";
       userSignupMsg.textContent = "Passwords do not match.";
       return;
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { error } = await client.auth.signUp({
       email,
-      password: pass
+      password
     });
 
     if (error) {
@@ -127,36 +127,51 @@ document.addEventListener("DOMContentLoaded", () => {
     uLoginBtn.click();
   });
 
-
   /* ---------------------------
-     ADMIN LOGIN
+     ADMIN LOGIN (Supabase + Role Check)
   ---------------------------- */
   adminLoginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    adminMsg.style.color = "#333";
     adminMsg.textContent = "Logging in...";
 
     const email = adminEmail.value.trim();
     const password = adminPass.value.trim();
 
-    const res = await fetch(`${API_BASE}/api/admin/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    const json = await res.json();
+      if (error) throw error;
 
-    if (!res.ok) {
+      const token = data.session.access_token;
+
+      // Fetch admin profile
+      const { data: profile, error: profileError } = await client
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError || profile?.role !== "admin") {
+        await client.auth.signOut();
+        throw new Error("This account is not an admin.");
+      }
+
+      // Store admin session
+      localStorage.setItem("sb_token", token);
+      localStorage.setItem("role", "admin");
+      localStorage.setItem("mg_user_id", data.user.id);
+
+      window.location.href = "Admin.html";
+
+    } catch (err) {
       adminMsg.style.color = "red";
-      adminMsg.textContent = json.error || "Invalid login.";
-      return;
+      adminMsg.textContent = err.message || "Admin login failed.";
     }
-
-    localStorage.setItem("role", "admin");
-    localStorage.setItem("admin_token", json.token);
-
-    window.location.href = "Admin.html";
   });
 
 });

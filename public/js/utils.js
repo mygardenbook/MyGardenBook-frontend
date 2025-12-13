@@ -49,3 +49,8 @@ export function debounce(fn, delay = 300) {
     timer = setTimeout(() => fn(...args), delay);
   };
 }
+function authHeaders() {
+  return {
+    Authorization: `Bearer ${localStorage.getItem("sb_token")}`
+  };
+}

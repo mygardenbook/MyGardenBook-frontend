@@ -188,171 +188,131 @@
   </div>
 
 <script>
+const API_BASE = window.__ENV.API_BASE;
+const token = localStorage.getItem("sb_token");
 
-  const API_BASE = location.hostname.includes("localhost")
-    ? "http://localhost:5000"
-    : "https://mygardenbook-backend.onrender.com";
+if (!token) {
+  alert("Admin session expired");
+  location.href = "Login.html";
+}
 
-  let categories = [];
-  let deleteMode = false;
-  let deleteSelected = [];
+let categories = [];
+let deleteMode = false;
+let deleteSelected = [];
 
-  const msgEl = document.getElementById("statusMsg");
-  const gridEl = document.getElementById("categoriesGrid");
-  const deleteInfo = document.getElementById("deleteInfo");
-  const addBtn = document.getElementById("addBtn");
-  const deleteBtn = document.getElementById("deleteBtn");
+const gridEl = document.getElementById("categoriesGrid");
+const msgEl = document.getElementById("statusMsg");
+const deleteInfo = document.getElementById("deleteInfo");
+const addBtn = document.getElementById("addBtn");
+const deleteBtn = document.getElementById("deleteBtn");
 
-  function showMessage(msg, type="info") {
-    msgEl.textContent = msg;
-    msgEl.style.color =
-      type === "error" ? "#b22222" :
-      type === "success" ? "#2e7d32" :
-      "#204d1e";
+function showMessage(msg, type="info") {
+  msgEl.textContent = msg;
+  msgEl.style.color = type === "error" ? "#b22222" : "#204d1e";
+  setTimeout(() => msgEl.textContent = "", 2000);
+}
 
-    setTimeout(() => { msgEl.textContent = ""; }, 1800);
-  }
+async function loadCategories() {
+  const res = await fetch(`${API_BASE}/api/categories`);
+  const all = await res.json();
+  categories = all.filter(c => c.type === "plant");
+  renderCategories();
+}
 
-  // LOAD CATEGORIES
-  async function loadCategories() {
-    try {
-      const res = await fetch(`${API_BASE}/api/plant-categories`);
-      categories = await res.json();
-      renderCategories();
-    } catch (err) {
-      console.error(err);
-      showMessage("Failed to load categories", "error");
-    }
-  }
+async function addCategory() {
+  const name = prompt("Enter new category name:");
+  if (!name) return;
 
-  // ADD CATEGORY
-  async function addCategory() {
-    const name = prompt("Enter new category name:");
-    if (!name || !name.trim()) return;
+  await fetch(`${API_BASE}/api/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ name, type: "plant" })
+  });
 
-    try {
-      await fetch(`${API_BASE}/api/plant-categories/add`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ name: name.trim() })
-      });
-      showMessage("Category added!", "success");
-      loadCategories();
-    } catch (err) {
-      showMessage("Error adding category", "error");
-    }
-  }
+  showMessage("Category added", "success");
+  loadCategories();
+}
 
-  async function toggleDeleteMode() {
-    if (!deleteMode) {
-      deleteMode = true;
-      deleteSelected = [];
-      deleteBtn.classList.add("selected");
-      deleteInfo.style.display = "block";
-      renderCategories();
-      showMessage("Select categories to delete");
-      return;
-    }
-
-    if (deleteSelected.length === 0) {
-      exitDeleteMode();
-      return;
-    }
-
-    if (!confirm(`Delete ${deleteSelected.length} categories?`)) return;
-
-    try {
-      await fetch(`${API_BASE}/api/plant-categories/delete`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ names: deleteSelected })
-      });
-
-      showMessage("Deleted successfully!", "success");
-      loadCategories();
-    } catch (err) {
-      showMessage("Error deleting", "error");
-    }
-
-    exitDeleteMode();
-  }
-
-  function exitDeleteMode() {
-    deleteMode = false;
-    deleteSelected = [];
-    deleteBtn.classList.remove("selected");
-    deleteInfo.style.display = "none";
-    renderCategories();
-  }
-
-  function openCategory(name) {
-    if (deleteMode) {
-      toggleSelect(name);
-      return;
-    }
-
-    window.location.href =
-      `AdminEachPlantCategory.html?category=${encodeURIComponent(name)}`;
-  }
-
-  function toggleSelect(name) {
-    if (deleteSelected.includes(name)) {
-      deleteSelected = deleteSelected.filter(n => n !== name);
-    } else {
-      deleteSelected.push(name);
-    }
-    renderCategories();
-  }
-
-  function renderCategories() {
-    gridEl.innerHTML = "";
-
-    if (!categories.length) {
-      gridEl.innerHTML = `<p style="grid-column:1/-1;text-align:center;">No categories yet.</p>`;
-      return;
-    }
-
-    categories.forEach(cat => {
-      const card = document.createElement("div");
-      card.className = "category-card";
-
-      if (deleteMode && deleteSelected.includes(cat.name)) {
-        card.classList.add("delete-select");
-      }
-
-      card.onclick = () => openCategory(cat.name);
-
-      const imgBox = document.createElement("div");
-      imgBox.className = "category-img";
-
-      if (cat.img) {
-        const img = document.createElement("img");
-        img.src = cat.img;
-        img.style.width = "100%";
-        img.style.height = "100%";
-        img.style.objectFit = "cover";
-        imgBox.appendChild(img);
-      } else {
-        imgBox.textContent = "🌿";
-        imgBox.style.fontSize = "2rem";
-        imgBox.style.textAlign = "center";
-      }
-
-      const label = document.createElement("div");
-      label.className = "category-label";
-      label.textContent = cat.name;
-
-      card.appendChild(imgBox);
-      card.appendChild(label);
-      gridEl.appendChild(card);
+async function deleteSelectedCategories() {
+  for (const cat of deleteSelected) {
+    await fetch(`${API_BASE}/api/categories/${cat.id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
     });
   }
-
-  addBtn.onclick = addCategory;
-  deleteBtn.onclick = toggleDeleteMode;
-
+  showMessage("Deleted", "success");
+  exitDeleteMode();
   loadCategories();
+}
 
+function toggleDeleteMode() {
+  if (!deleteMode) {
+    deleteMode = true;
+    deleteSelected = [];
+    deleteBtn.classList.add("selected");
+    deleteInfo.style.display = "block";
+    return;
+  }
+
+  if (!deleteSelected.length) {
+    exitDeleteMode();
+    return;
+  }
+
+  if (confirm(`Delete ${deleteSelected.length} categories?`)) {
+    deleteSelectedCategories();
+  }
+}
+
+function exitDeleteMode() {
+  deleteMode = false;
+  deleteSelected = [];
+  deleteBtn.classList.remove("selected");
+  deleteInfo.style.display = "none";
+  renderCategories();
+}
+
+function toggleSelect(cat) {
+  const idx = deleteSelected.findIndex(c => c.id === cat.id);
+  if (idx >= 0) deleteSelected.splice(idx, 1);
+  else deleteSelected.push(cat);
+  renderCategories();
+}
+
+function openCategory(cat) {
+  if (deleteMode) return toggleSelect(cat);
+  location.href = `AdminEachPlantCategory.html?category=${encodeURIComponent(cat.name)}`;
+}
+
+function renderCategories() {
+  gridEl.innerHTML = "";
+  if (!categories.length) {
+    gridEl.innerHTML = "<p>No categories yet.</p>";
+    return;
+  }
+
+  categories.forEach(cat => {
+    const card = document.createElement("div");
+    card.className = "category-card";
+    if (deleteMode && deleteSelected.some(c => c.id === cat.id)) {
+      card.classList.add("delete-select");
+    }
+    card.onclick = () => openCategory(cat);
+
+    card.innerHTML = `
+      <div class="category-img">🌿</div>
+      <div class="category-label">${cat.name}</div>
+    `;
+    gridEl.appendChild(card);
+  });
+}
+
+addBtn.onclick = addCategory;
+deleteBtn.onclick = toggleDeleteMode;
+loadCategories();
 </script>
 
 <script src="/js/config.js"></script>

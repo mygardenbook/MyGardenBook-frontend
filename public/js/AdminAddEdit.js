@@ -1,19 +1,17 @@
 /* =============================================================
-   AdminAddEdit.js — FINAL (Supabase Categories)
+   AdminAddEdit.js — FINAL (Render + Supabase + Cloudinary)
 ============================================================= */
 
 const API_BASE = window.__ENV.API_BASE;
 
-// Detect page type
+/* ---------------- PAGE CONTEXT ---------------- */
 const page = window.location.pathname.toLowerCase();
 const isPlantPage = page.includes("plant");
-const isFishPage = page.includes("fish");
-
 const type = isPlantPage ? "plant" : "fish";
-const endpoint = isPlantPage ? "plants" : "fish";
+const endpoint = isPlantPage ? "plants" : "fishes";
 const redirectPage = isPlantPage ? "AdminPlants.html" : "AdminFishes.html";
 
-// DOM
+/* ---------------- DOM ---------------- */
 const sciName = document.getElementById("sciName");
 const commonName = document.getElementById("commonName");
 const categorySelect = document.getElementById("category");
@@ -25,13 +23,31 @@ const qrImage = document.getElementById("qrImage");
 const qrLink = document.getElementById("qrLink");
 const statusMsg = document.getElementById("statusMsg");
 
-// URL params
+/* ---------------- AUTH ---------------- */
+function getAdminToken() {
+  const token = localStorage.getItem("sb_token");
+  if (!token) {
+    alert("Admin session expired. Please login again.");
+    window.location.href = "Login.html";
+    throw new Error("Missing admin token");
+  }
+  return token;
+}
+
+function authHeaders() {
+  return {
+    Authorization: `Bearer ${getAdminToken()}`
+  };
+}
+
+/* ---------------- URL PARAMS ---------------- */
 const params = new URLSearchParams(window.location.search);
 let itemId = params.get("id");
 let currentItem = null;
 
 /* ---------------- STATUS ---------------- */
 function showMessage(msg, type = "success") {
+  if (!statusMsg) return;
   statusMsg.style.display = "block";
   statusMsg.style.color = type === "error" ? "#b22222" : "#2d6a1c";
   statusMsg.textContent = msg;
@@ -39,8 +55,12 @@ function showMessage(msg, type = "success") {
 
 /* ---------------- LOAD CATEGORIES ---------------- */
 async function loadCategories(selected = "") {
+  if (!categorySelect) return;
+
   try {
     const res = await fetch(`${API_BASE}/api/categories`);
+    if (!res.ok) throw new Error();
+
     const categories = await res.json();
 
     categorySelect.innerHTML = `
@@ -59,9 +79,15 @@ async function loadCategories(selected = "") {
 
 /* ---------------- CREATE CATEGORY ---------------- */
 async function createCategory(name) {
+  // fail fast if admin token is missing
+  getAdminToken();
+
   const res = await fetch(`${API_BASE}/api/categories`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders()
+    },
     body: JSON.stringify({ name })
   });
 
@@ -69,24 +95,26 @@ async function createCategory(name) {
 }
 
 /* ---------------- CATEGORY CHANGE ---------------- */
-categorySelect.addEventListener("change", async () => {
-  if (categorySelect.value === "__new__") {
-    const name = prompt("Enter new category name:");
-    if (!name || !name.trim()) {
-      categorySelect.value = "";
-      return;
-    }
+if (categorySelect) {
+  categorySelect.addEventListener("change", async () => {
+    if (categorySelect.value === "__new__") {
+      const name = prompt("Enter new category name:");
+      if (!name || !name.trim()) {
+        categorySelect.value = "";
+        return;
+      }
 
-    try {
-      await createCategory(name.trim());
-      await loadCategories(name.trim());
-      showMessage("Category created");
-    } catch {
-      showMessage("Category already exists", "error");
-      categorySelect.value = "";
+      try {
+        await createCategory(name.trim());
+        await loadCategories(name.trim());
+        showMessage("Category created");
+      } catch {
+        showMessage("Category already exists", "error");
+        categorySelect.value = "";
+      }
     }
-  }
-});
+  });
+}
 
 /* ---------------- LOAD ITEM ---------------- */
 async function loadItem() {
@@ -96,8 +124,9 @@ async function loadItem() {
 
   try {
     const res = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
-    const item = await res.json();
+    if (!res.ok) throw new Error();
 
+    const item = await res.json();
     currentItem = item;
 
     sciName.value = item.scientific_name || "";
@@ -112,6 +141,7 @@ async function loadItem() {
       qrLink.textContent = `View ${type}`;
       qrSection.style.display = "block";
     }
+
   } catch (err) {
     console.error(err);
     showMessage("Failed to load item", "error");
@@ -124,31 +154,38 @@ async function saveForm() {
 
   formData.append("name", commonName.value.trim());
   formData.append("scientific_name", sciName.value.trim());
-  formData.append("category", categorySelect.value);
+  formData.append("category", categorySelect?.value || "");
   formData.append("description", description.value.trim());
-  formData.append("type", type);
 
   if (imageUpload.files.length) {
     formData.append("image", imageUpload.files[0]);
   }
 
   const url = itemId
-  ? `${API_BASE}/api/fish/edit/${itemId}`
-  : `${API_BASE}/api/fish`;
+    ? `${API_BASE}/api/${endpoint}/${itemId}`
+    : `${API_BASE}/api/${endpoint}`;
+
+  const method = itemId ? "PUT" : "POST";
 
   showMessage("Saving...");
 
   try {
-    const res = await fetch(url, { method: "POST", body: formData });
+    const res = await fetch(url, {
+      method,
+      headers: authHeaders(),
+      body: formData
+    });
+
     const data = await res.json();
 
-    if (!res.ok || !data.success) {
-      showMessage("Save failed", "error");
+    if (!res.ok) {
+      showMessage(data.error || "Save failed", "error");
       return;
     }
 
+    // First save → QR generation
     if (!itemId) {
-      currentItem = data.item;
+      currentItem = data.plant || data.fish || data;
       itemId = currentItem.id;
 
       qrImage.src = currentItem.qr_code_url;
@@ -160,6 +197,7 @@ async function saveForm() {
       return;
     }
 
+    // Second save → redirect
     window.location.href = redirectPage;
 
   } catch (err) {
@@ -173,10 +211,10 @@ function clearForm() {
   sciName.value = "";
   commonName.value = "";
   description.value = "";
-  categorySelect.value = "";
+  if (categorySelect) categorySelect.value = "";
   imageUpload.value = "";
   qrSection.style.display = "none";
-  statusMsg.style.display = "none";
+  if (statusMsg) statusMsg.style.display = "none";
 }
 
 /* ---------------- QR ---------------- */

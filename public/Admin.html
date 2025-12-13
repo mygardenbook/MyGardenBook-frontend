@@ -32,7 +32,6 @@
       }
     }
 
-    /* EXISTING PAGE CSS */
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Baloo 2','Kalam',sans-serif}
     body{
       background:url('Bg.png') no-repeat center center fixed;
@@ -111,9 +110,12 @@
     <div class="download-status" id="downloadStatus">Preparing download...</div>
   </div>
 
+<!-- ✅ CONFIG MUST LOAD FIRST -->
+<script src="js/config.js"></script>
+
 <script>
-  // FINAL Backend API
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
+  // FINAL Backend API (from config.js)
+  const API_BASE = window.__ENV.API_BASE;
 
   // ADMIN AUTH CHECK
   const role = localStorage.getItem("role");
@@ -131,7 +133,15 @@
     status.textContent = "Preparing download...";
 
     try {
-      const res = await fetch(`${API_BASE}/api/export`);
+      const token = localStorage.getItem("sb_token");
+      if (!token) throw new Error("Missing admin token");
+
+      const res = await fetch(`${API_BASE}/api/export`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
       if (!res.ok) throw new Error();
 
       const blob = await res.blob();
@@ -139,7 +149,7 @@
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = "MyGardenBook_Data.xlsx";
+      a.download = "MyGardenBook_Data.csv";
       a.click();
 
       URL.revokeObjectURL(url);
@@ -157,8 +167,6 @@
     window.location.href = "Login.html";
   }
 </script>
-
 <script src="js/config.js"></script>
-
 </body>
 </html>
