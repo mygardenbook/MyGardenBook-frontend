@@ -133,8 +133,8 @@ async function saveForm() {
   }
 
   const url = itemId
-    ? `${API_BASE}/api/edit/${type}/${itemId}`
-    : `${API_BASE}/api/add`;
+  ? `${API_BASE}/api/fish/edit/${itemId}`
+  : `${API_BASE}/api/fish`;
 
   showMessage("Saving...");
 
