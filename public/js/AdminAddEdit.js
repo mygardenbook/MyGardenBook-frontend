@@ -90,11 +90,15 @@ async function createCategory(name) {
       "Content-Type": "application/json",
       ...authHeaders()
     },
-    body: JSON.stringify({ name })
+    body: JSON.stringify({
+      name,
+      type   // ✅ ADD THIS LINE
+    })
   });
 
   if (!res.ok) throw new Error("Category creation failed");
 }
+
 
 /* ---------------- CATEGORY CHANGE ---------------- */
 if (categorySelect) {
