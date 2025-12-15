@@ -1,5 +1,5 @@
 /* =============================================================
-   AdminAddEdit.js — FINAL, FIXED, PRODUCTION READY
+   AdminAddEdit.js — FINAL, VERIFIED, QR-SAFE
 ============================================================= */
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- STATUS ---------------- */
   function showMessage(msg, type = "success") {
+    if (!statusMsg) return;
     statusMsg.style.display = "block";
     statusMsg.style.color = type === "error" ? "#b22222" : "#2d6a1c";
     statusMsg.textContent = msg;
@@ -70,10 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------------- CATEGORY CHANGE ---------------- */
-  categorySelect.addEventListener("change", () => {
-    newCategoryWrapper.style.display =
-      categorySelect.value === "__new__" ? "flex" : "none";
-  });
+  if (categorySelect) {
+    categorySelect.addEventListener("change", () => {
+      if (!newCategoryWrapper) return;
+      newCategoryWrapper.style.display =
+        categorySelect.value === "__new__" ? "flex" : "none";
+    });
+  }
 
   /* ---------------- CREATE CATEGORY ---------------- */
   async function saveNewCategory() {
@@ -133,14 +137,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const res = await fetch(
-      itemId ? `${API_BASE}/api/${endpoint}/${itemId}` : `${API_BASE}/api/${endpoint}`,
-      { method: itemId ? "PUT" : "POST", headers: authHeaders(), body: formData }
+      itemId
+        ? `${API_BASE}/api/${endpoint}/${itemId}`
+        : `${API_BASE}/api/${endpoint}`,
+      {
+        method: itemId ? "PUT" : "POST",
+        headers: authHeaders(),
+        body: formData
+      }
     );
 
     const data = await res.json();
     if (!res.ok) return showMessage("Save failed", "error");
 
-    const saved = data.plant || data.item;
+    /* ✅ FIXED RESPONSE HANDLING */
+    const saved =
+      data.plant ||
+      data.fish;
+
+    if (!saved) {
+      console.error("Unexpected save response:", data);
+      return showMessage("Save succeeded but response invalid", "error");
+    }
+
     currentItem = saved;
 
     if (!itemId) {
@@ -169,12 +188,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- QR DOWNLOAD ---------------- */
   function downloadQR() {
-    if (!currentItem?.qr_code_url) return alert("QR not available");
+    if (!currentItem?.qr_code_url) {
+      alert("QR not available");
+      return;
+    }
 
     const a = document.createElement("a");
     a.href = currentItem.qr_code_url;
-    a.download = `${currentItem.name || "qr"}.png`;
+    a.download = `${currentItem.name || "qr-code"}.png`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   }
 
   /* ---------------- INIT ---------------- */
