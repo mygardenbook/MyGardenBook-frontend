@@ -62,22 +62,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const categories = await res.json();
 
     categorySelect.innerHTML = `
-      <option value="">-- Select Category --</option>
-      ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
-      <option value="__new__">+ Add New Category</option>
-    `;
+  <option value="">-- Select Category --</option>
+  ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
+  <option value="__new__">+ Add New Category</option>
+`;
 
     if (selected) categorySelect.value = selected;
   }
 
   /* ---------------- CATEGORY CHANGE ---------------- */
-  if (categorySelect) {
-    categorySelect.addEventListener("change", () => {
-      if (!newCategoryWrapper) return;
-      newCategoryWrapper.style.display =
-        categorySelect.value === "__new__" ? "flex" : "none";
-    });
+  categorySelect.addEventListener("change", () => {
+  if (categorySelect.value === "__new__") {
+    // reset dropdown so "__new__" is never treated as a real value
+    categorySelect.value = "";
+
+    // show input
+    newCategoryWrapper.style.display = "flex";
+    newCategoryInput.value = "";
+    newCategoryInput.focus();
+  } else {
+    newCategoryWrapper.style.display = "none";
   }
+});
+
 
   /* ---------------- CREATE CATEGORY ---------------- */
   async function saveNewCategory() {
@@ -129,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData();
     formData.append("name", commonName.value.trim());
     formData.append("scientific_name", sciName.value.trim());
+    if (categorySelect.value)
     formData.append("category", categorySelect.value);
     formData.append("description", description.value.trim());
 
