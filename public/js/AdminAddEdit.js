@@ -1,5 +1,5 @@
 /* =============================================================
-   AdminAddEdit.js — FINAL (Render + Supabase + Cloudinary)
+   AdminAddEdit.js — FINAL (STABLE)
 ============================================================= */
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -21,6 +21,9 @@ const categorySelect = document.getElementById("category");
 const description = document.getElementById("description");
 const imageUpload = document.getElementById("imageUpload");
 
+const newCategoryWrapper = document.getElementById("newCategoryWrapper");
+const newCategoryInput = document.getElementById("newCategoryInput");
+
 const qrSection = document.getElementById("qrSection");
 const qrImage = document.getElementById("qrImage");
 const qrLink = document.getElementById("qrLink");
@@ -38,9 +41,7 @@ function getAdminToken() {
 }
 
 function authHeaders() {
-  return {
-    Authorization: `Bearer ${getAdminToken()}`
-  };
+  return { Authorization: `Bearer ${getAdminToken()}` };
 }
 
 /* ---------------- URL PARAMS ---------------- */
@@ -58,69 +59,65 @@ function showMessage(msg, type = "success") {
 
 /* ---------------- LOAD CATEGORIES ---------------- */
 async function loadCategories(selected = "") {
-  if (!categorySelect) return;
-
   try {
     const res = await fetch(`${API_BASE}/api/categories`);
-    if (!res.ok) throw new Error();
-
     const categories = await res.json();
 
     categorySelect.innerHTML = `
       <option value="">-- Select Category --</option>
       ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
-      <option value="__new__">+ Create New Category</option>
+      <option value="__new__">+ Add New Category</option>
     `;
 
     if (selected) categorySelect.value = selected;
 
   } catch (err) {
-    console.error("Category load failed:", err);
+    console.error(err);
     showMessage("Failed to load categories", "error");
   }
 }
 
-/* ---------------- CREATE CATEGORY ---------------- */
-async function createCategory(name) {
-  getAdminToken();
-
-  const res = await fetch(`${API_BASE}/api/categories`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders()
-    },
-    body: JSON.stringify({
-      name,
-      type   // ✅ ADD THIS LINE
-    })
-  });
-
-  if (!res.ok) throw new Error("Category creation failed");
-}
-
-
 /* ---------------- CATEGORY CHANGE ---------------- */
-if (categorySelect) {
-  categorySelect.addEventListener("change", async () => {
-    if (categorySelect.value === "__new__") {
-      const name = prompt("Enter new category name:");
-      if (!name || !name.trim()) {
-        categorySelect.value = "";
-        return;
-      }
+categorySelect.addEventListener("change", () => {
+  if (categorySelect.value === "__new__") {
+    newCategoryWrapper.style.display = "block";
+    newCategoryInput.focus();
+  } else {
+    newCategoryWrapper.style.display = "none";
+  }
+});
 
-      try {
-        await createCategory(name.trim());
-        await loadCategories(name.trim());
-        showMessage("Category created");
-      } catch {
-        showMessage("Category already exists", "error");
-        categorySelect.value = "";
-      }
-    }
-  });
+/* ---------------- CREATE CATEGORY ---------------- */
+async function saveNewCategory() {
+  const name = newCategoryInput.value.trim();
+  if (!name) {
+    showMessage("Category name required", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/categories`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders()
+      },
+      body: JSON.stringify({ name }) // ❌ NO type column
+    });
+
+    if (!res.ok) throw new Error();
+
+    await loadCategories(name);
+    newCategoryWrapper.style.display = "none";
+    newCategoryInput.value = "";
+    showMessage("Category created");
+
+  } catch {
+    showMessage("Category already exists", "error");
+  }
 }
+
+window.saveNewCategory = saveNewCategory;
 
 /* ---------------- LOAD ITEM ---------------- */
 async function loadItem() {
@@ -128,29 +125,21 @@ async function loadItem() {
 
   if (!itemId) return;
 
-  try {
-    const res = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
-    if (!res.ok) throw new Error();
+  const res = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
+  const item = await res.json();
+  currentItem = item;
 
-    const item = await res.json();
-    currentItem = item;
+  sciName.value = item.scientific_name || "";
+  commonName.value = item.name || "";
+  description.value = item.description || "";
 
-    sciName.value = item.scientific_name || "";
-    commonName.value = item.name || "";
-    description.value = item.description || "";
+  await loadCategories(item.category);
 
-    await loadCategories(item.category);
-
-    if (item.qr_code_url) {
-      qrImage.src = item.qr_code_url;
-      qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${item.id}`;
-      qrLink.textContent = `View ${type}`;
-      qrSection.style.display = "block";
-    }
-
-  } catch (err) {
-    console.error(err);
-    showMessage("Failed to load item", "error");
+  if (item.qr_code_url) {
+    qrImage.src = item.qr_code_url;
+    qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${item.id}`;
+    qrLink.textContent = `View ${type}`;
+    qrSection.style.display = "block";
   }
 }
 
@@ -160,7 +149,7 @@ async function saveForm() {
 
   formData.append("name", commonName.value.trim());
   formData.append("scientific_name", sciName.value.trim());
-  formData.append("category", categorySelect?.value || "");
+  formData.append("category", categorySelect.value);
   formData.append("description", description.value.trim());
 
   if (imageUpload.files.length) {
@@ -175,39 +164,28 @@ async function saveForm() {
 
   showMessage("Saving...");
 
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: authHeaders(),
-      body: formData
-    });
+  const res = await fetch(url, {
+    method,
+    headers: authHeaders(),
+    body: formData
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (!res.ok) {
-      showMessage(data.error || "Save failed", "error");
-      return;
-    }
-
-    if (!itemId) {
-      currentItem = data.plant || data.fish || data;
-      itemId = currentItem.id;
-
-      qrImage.src = currentItem.qr_code_url;
-      qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
-      qrLink.textContent = `View ${type}`;
-      qrSection.style.display = "block";
-
-      showMessage("QR generated. Save again to finish.");
-      return;
-    }
-
-    window.location.href = redirectPage;
-
-  } catch (err) {
-    console.error(err);
-    showMessage("Server error", "error");
+  if (!res.ok) {
+    showMessage(data.error || "Save failed", "error");
+    return;
   }
+
+  if (!itemId) {
+    itemId = data.id;
+    qrImage.src = data.qr_code_url;
+    qrSection.style.display = "block";
+    showMessage("QR generated. Save again to finish.");
+    return;
+  }
+
+  window.location.href = redirectPage;
 }
 
 /* ---------------- CLEAR ---------------- */
@@ -215,10 +193,10 @@ function clearForm() {
   sciName.value = "";
   commonName.value = "";
   description.value = "";
-  if (categorySelect) categorySelect.value = "";
+  categorySelect.value = "";
   imageUpload.value = "";
   qrSection.style.display = "none";
-  if (statusMsg) statusMsg.style.display = "none";
+  statusMsg.style.display = "none";
 }
 
 /* ---------------- QR ---------------- */
