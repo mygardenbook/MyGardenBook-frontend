@@ -1,6 +1,9 @@
 /* =============================================================
    AdminAddEdit.js — FINAL (Render + Supabase + Cloudinary)
 ============================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+console.log("✅ AdminAddEdit.js LOADED");
 
 const API_BASE = window.__ENV.API_BASE;
 
@@ -79,7 +82,6 @@ async function loadCategories(selected = "") {
 
 /* ---------------- CREATE CATEGORY ---------------- */
 async function createCategory(name) {
-  // fail fast if admin token is missing
   getAdminToken();
 
   const res = await fetch(`${API_BASE}/api/categories`, {
@@ -183,7 +185,6 @@ async function saveForm() {
       return;
     }
 
-    // First save → QR generation
     if (!itemId) {
       currentItem = data.plant || data.fish || data;
       itemId = currentItem.id;
@@ -197,7 +198,6 @@ async function saveForm() {
       return;
     }
 
-    // Second save → redirect
     window.location.href = redirectPage;
 
   } catch (err) {
@@ -228,7 +228,8 @@ function downloadQR() {
 
 /* ---------------- INIT ---------------- */
 loadItem();
-
 window.saveForm = saveForm;
 window.clearForm = clearForm;
 window.downloadQR = downloadQR;
+
+});
