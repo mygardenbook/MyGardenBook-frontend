@@ -6,8 +6,9 @@
 
 (function () {
 
-  // Auto-detect API base (website origin)
-   const API_BASE = "https://mygardenbook-backend.onrender.com";
+  // Auto-detect API base (from config.js with fallback)
+  const API_BASE =
+    window.__ENV?.API_BASE || "https://mygardenbook-backend.onrender.com";
 
   /* -----------------------------------------------------------
      Build contextual details for Groq (plant/fish details)
@@ -16,7 +17,11 @@
     let ctx = "";
 
     // Page name (PlantView, UserPlant, AdminAdd, etc.)
-    const page = window.location.pathname.split("/").pop().replace(".html", "");
+    const page = window.location.pathname
+      .split("/")
+      .pop()
+      .replace(".html", "");
+
     ctx += `User is on page "${page}".`;
 
     // Check for ?id=
@@ -35,9 +40,11 @@
         const data = await res.json();
 
         if (data?.name) ctx += ` ${type} name: "${data.name}".`;
-        if (data?.scientificName) ctx += ` Scientific name: "${data.scientificName}".`;
+        if (data?.scientific_name)
+          ctx += ` Scientific name: "${data.scientific_name}".`;
         if (data?.category) ctx += ` Category: ${data.category}.`;
-        if (data?.description) ctx += ` Description: ${data.description}.`;
+        if (data?.description)
+          ctx += ` Description: ${data.description}.`;
       }
     } catch (err) {
       console.warn("⚠️ Context fetch failed:", err);
@@ -79,11 +86,9 @@
     const container = document.getElementById(containerId);
     if (!container) return null;
 
-    // Container wrapper (ensures proper vertical flow)
     const wrapper = document.createElement("div");
     wrapper.style.clear = "both";
 
-    // Bubble
     const bubble = document.createElement("div");
     bubble.style.padding = "8px 12px";
     bubble.style.margin = "6px 0";
@@ -106,16 +111,18 @@
 
     wrapper.appendChild(bubble);
     container.appendChild(wrapper);
-
     container.scrollTop = container.scrollHeight;
+
     return wrapper;
   }
 
   /* -----------------------------------------------------------
-     MAIN HANDLER FUNCTION (called from buttons)
-     Example usage: <button onclick="handleUniversalAI()">Ask</button>
+     MAIN HANDLER FUNCTION
   ------------------------------------------------------------ */
-  async function handleUniversalAI(inputId = "aiQuestion", outputId = "aiResponse") {
+  async function handleUniversalAI(
+    inputId = "aiQuestion",
+    outputId = "aiResponse"
+  ) {
     const inputEl = document.getElementById(inputId);
     const chatBox = document.getElementById(outputId);
 
@@ -127,16 +134,12 @@
     const question = inputEl.value.trim();
     if (!question) return;
 
-    // Add user bubble
     createBubble(outputId, "user", question);
 
-    // Temporary bubble AI: Thinking...
     const tempBubble = createBubble(outputId, "ai", "⏳ Thinking...");
 
-    // Fetch AI response from Groq
     const reply = await sendToAI(question);
 
-    // Replace placeholder bubble text
     if (tempBubble && tempBubble.firstChild) {
       tempBubble.firstChild.textContent = `AI: ${reply}`;
     }
@@ -146,7 +149,7 @@
   }
 
   /* -----------------------------------------------------------
-     Expose function globally
+     Expose globally
   ------------------------------------------------------------ */
   window.handleUniversalAI = handleUniversalAI;
 
