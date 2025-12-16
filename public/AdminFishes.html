@@ -8,125 +8,145 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100vh;
-    font-family: 'Baloo 2','Kalam','Arial',sans-serif;
-    overflow-x: hidden;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Baloo 2','Kalam',sans-serif;
+  overflow-x: hidden;
+}
 
-  .background-overlay {
-    position: fixed;
-    inset: 0;
-    background: url('Bg.png') no-repeat center center fixed;
-    background-size: cover;
-    z-index: 0;
-  }
-  .background-overlay::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0.72);
-  }
+.background-overlay {
+  position: fixed;
+  inset: 0;
+  background: url('Bg.png') no-repeat center center fixed;
+  background-size: cover;
+  z-index: 0;
+}
+.background-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.72);
+}
 
-  .content {
-    position: relative;
-    z-index: 2;
-    padding-top: 4rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+.content {
+  position: relative;
+  z-index: 2;
+  padding-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .nav-row {
-    display: flex;
-    justify-content: space-between;
-    width: 94%;
-    max-width: 860px;
-  }
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  width: 94%;
+  max-width: 860px;
+}
 
-  .back-arrow {
-    background: none;
-    border: none;
-    width: 34px;
-    height: 34px;
-    cursor: pointer;
-  }
+.back-arrow {
+  background: none;
+  border: none;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+}
 
-  .plants-btn, .action-btn {
-    background: #BFE7BC;
-    border: none;
-    border-radius: 20px;
-    padding: 0.7rem 1.3rem;
-    font-weight: bold;
-    cursor: pointer;
-  }
+.plants-btn, .action-btn {
+  background: #BFE7BC;
+  border: none;
+  border-radius: 20px;
+  padding: 0.7rem 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-  .actions-row {
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-    margin: 2rem 0 1rem;
-  }
+.actions-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 2rem 0 1rem;
+}
 
-  .fish-list {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 1rem;
-    width: 90%;
-    max-width: 650px;
-    margin-bottom: 3rem;
-  }
+.search-wrap {
+  width: 90%;
+  max-width: 650px;
+  margin-bottom: 1.2rem;
+}
 
-  .fish-card {
-    background: #BFE7BC;
-    border-radius: 18px;
-    padding: 0.6rem;
-    height: 145px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    transition: 0.15s;
-  }
+.search-box {
+  background: #fff;
+  border-radius: 30px;
+  padding: 0.6rem 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
-  .fish-card.selected {
-    outline: 3px solid #4A771C;
-    background: #aee6a8;
-  }
+.search-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-family: inherit;
+}
 
-  .fish-img {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    border: 2px solid #4A771C;
-    object-fit: cover;
-    background: #fff;
-  }
+.fish-list {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 1rem;
+  width: 90%;
+  max-width: 650px;
+  margin-bottom: 3rem;
+}
 
-  .fish-name {
-    font-size: 0.95rem;
-    text-align: center;
-  }
+.fish-card {
+  background: #BFE7BC;
+  border-radius: 18px;
+  padding: 0.6rem;
+  height: 145px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
 
-  .qr-btn {
-    font-size: 0.75rem;
-    background: #4A771C;
-    color: #fff;
-    border-radius: 12px;
-    padding: 4px 10px;
-    text-decoration: none;
-  }
+.fish-card.selected {
+  outline: 3px solid #4A771C;
+  background: #aee6a8;
+}
 
-  .status-msg {
-    min-height: 1em;
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
-    color: #1d6d25;
-  }
+.fish-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid #4A771C;
+  object-fit: cover;
+  background: #fff;
+}
+
+.fish-name {
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.qr-btn {
+  font-size: 0.75rem;
+  background: #4A771C;
+  color: #fff;
+  border-radius: 12px;
+  padding: 4px 10px;
+  text-decoration: none;
+}
+
+.status-msg {
+  min-height: 1em;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #1d6d25;
+}
 </style>
 </head>
 
@@ -147,7 +167,15 @@
     <button class="action-btn" id="deleteBtn">Delete Fish</button>
   </div>
 
-  <div class="status-msg" id="statusMsg"></div>
+  <div id="statusMsg" class="status-msg"></div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <input id="fishSearch" placeholder="Search fishes..." />
+    </div>
+  </div>
+
   <div class="fish-list" id="fishList"></div>
 
 </div>
@@ -156,73 +184,92 @@
 const API_BASE = "https://mygardenbook-backend.onrender.com";
 const token = localStorage.getItem("sb_token");
 
+let allFishes = [];
 let deleteMode = false;
 let selectedIds = [];
 
 const listEl = document.getElementById("fishList");
 const deleteBtn = document.getElementById("deleteBtn");
 const statusMsg = document.getElementById("statusMsg");
+const searchInput = document.getElementById("fishSearch");
 
-function showMessage(msg, error=false) {
+function getId(f) {
+  return f.id || f._id;
+}
+
+function showMessage(msg, isError) {
   statusMsg.textContent = msg;
-  statusMsg.style.color = error ? "#b22222" : "#1d6d25";
-  setTimeout(() => statusMsg.textContent = "", 2500);
+  statusMsg.style.color = isError ? "#b22222" : "#1d6d25";
+  setTimeout(function () {
+    statusMsg.textContent = "";
+  }, 2500);
 }
 
 async function loadFishes() {
-  const res = await fetch(`${API_BASE}/api/fishes`);
-  const fishes = await res.json();
-  render(fishes);
+  const res = await fetch(API_BASE + "/api/fishes");
+  allFishes = await res.json();
+  applySearch();
+}
+
+function applySearch() {
+  const q = searchInput.value.toLowerCase();
+  const filtered = allFishes.filter(function (f) {
+    return (
+      (f.name || "").toLowerCase().includes(q) ||
+      (f.category || "").toLowerCase().includes(q)
+    );
+  });
+  render(filtered);
 }
 
 function render(fishes) {
   listEl.innerHTML = "";
 
-  fishes.forEach(f => {
+  fishes.forEach(function (f) {
+    const id = getId(f);
     const card = document.createElement("div");
     card.className = "fish-card";
-    if (selectedIds.includes(f.id)) card.classList.add("selected");
 
-    let qrHtml = "";
-    if (f.qr_code_url) {
-      qrHtml =
-        '<a class="qr-btn" href="' +
-        f.qr_code_url +
-        '" download onclick="event.stopPropagation()">QR</a>';
+    if (selectedIds.indexOf(id) !== -1) {
+      card.classList.add("selected");
     }
 
-    card.innerHTML =
-      '<img src="' + (f.image_url || "placeholder.jpg") + '" class="fish-img">' +
-      '<div class="fish-name">' + f.name + "</div>" +
-      qrHtml;
+    let html = "";
+    html += '<img src="' + (f.image_url || "placeholder.jpg") + '" class="fish-img">';
+    html += '<div class="fish-name">' + (f.name || "Unnamed") + "</div>";
 
-    card.onclick = () => {
+    if (f.qr_code_url) {
+      html += '<a class="qr-btn" href="' + f.qr_code_url + '" download onclick="event.stopPropagation()">QR</a>';
+    }
+
+    card.innerHTML = html;
+
+    card.onclick = function () {
       if (!deleteMode) {
-        location.href = `AdminAddEditFish.html?id=${f.id}`;
+        location.href = "AdminAddEditFish.html?id=" + id;
         return;
       }
 
-      if (selectedIds.includes(f.id)) {
-        selectedIds = selectedIds.filter(x => x !== f.id);
+      if (selectedIds.indexOf(id) !== -1) {
+        selectedIds = selectedIds.filter(function (x) { return x !== id; });
       } else {
-        selectedIds.push(f.id);
+        selectedIds.push(id);
       }
 
-      render(fishes);
-      deleteBtn.textContent = `Confirm Delete (${selectedIds.length})`;
+      deleteBtn.textContent = "Confirm Delete (" + selectedIds.length + ")";
+      applySearch();
     };
 
     listEl.appendChild(card);
   });
 }
 
-
-deleteBtn.onclick = async () => {
+deleteBtn.onclick = async function () {
   if (!deleteMode) {
     deleteMode = true;
     deleteBtn.textContent = "Confirm Delete (0)";
     deleteBtn.style.background = "#E57373";
-    showMessage("Select fishes to delete");
+    showMessage("Select fishes to delete", false);
     return;
   }
 
@@ -232,14 +279,14 @@ deleteBtn.onclick = async () => {
     return;
   }
 
-  for (const id of selectedIds) {
-    await fetch(`${API_BASE}/api/fishes/${id}`, {
+  for (let i = 0; i < selectedIds.length; i++) {
+    await fetch(API_BASE + "/api/fishes/" + selectedIds[i], {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: "Bearer " + token }
     });
   }
 
-  showMessage(`${selectedIds.length} fishes deleted`);
+  showMessage(selectedIds.length + " fishes deleted", false);
   resetDelete();
   loadFishes();
 };
@@ -250,6 +297,8 @@ function resetDelete() {
   deleteBtn.textContent = "Delete Fish";
   deleteBtn.style.background = "#BFE7BC";
 }
+
+searchInput.addEventListener("input", applySearch);
 
 loadFishes();
 </script>
