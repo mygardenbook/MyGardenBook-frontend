@@ -4,273 +4,226 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Plants</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+
   <style>
     html, body {
       margin: 0; padding: 0; width: 100%; min-height: 100vh;
       font-family: 'Baloo 2','Kalam','Arial',sans-serif;
-      background: none; overflow-x: hidden; box-sizing: border-box;
+      overflow-x: hidden;
     }
-    body { position: relative; z-index: 0; }
 
-    /* ✅ FIXED BACKGROUND IMAGE PATH */
     .background-overlay {
-      position: fixed; z-index: 0; width: 100%; height: 100%; top: 0; left: 0;
+      position: fixed; inset: 0;
       background: url('/Bg.png') no-repeat center center fixed;
       background-size: cover;
+      z-index: 0;
     }
     .background-overlay::after {
-      content: ""; position: absolute; width: 100%; height: 100%;
-      top: 0; left: 0; background: #fff; opacity: 0.7; z-index: 1;
+      content: ""; position: absolute; inset: 0;
+      background: #fff; opacity: 0.7;
     }
 
     .content {
-      position: relative; z-index: 2; width: 100%; min-height: 100vh;
-      padding-top: 3.5rem; display: flex; flex-direction: column; align-items: center;
+      position: relative; z-index: 2;
+      padding-top: 3.5rem;
+      display: flex; flex-direction: column; align-items: center;
     }
 
     .nav-row {
-      display: flex; align-items: flex-start; justify-content: space-between;
+      display: flex; justify-content: space-between;
       width: 94%; max-width: 860px;
     }
+
     .back-arrow {
       background: none; border: none; cursor: pointer;
-      width: 34px; height: 34px; display: flex; align-items: center;
+      width: 34px; height: 34px;
     }
-    .back-arrow svg polyline { stroke: black; stroke-width: 4; }
 
     .fishes-btn, .action-btn {
-      background: #BFE7BC; border: none; border-radius: 20px;
-      font-size: 1.05rem; color: #262A23; font-weight: bold;
-      font-family: 'Baloo 2','Kalam',cursive,sans-serif;
-      padding: 0.7rem 1.3rem; cursor: pointer; transition: background 0.2s ease;
-      white-space: nowrap;
-    }
-    .fishes-btn:hover, .action-btn:hover {
-      background: #b3e572; color: #262A23;
+      background: #BFE7BC;
+      border: none;
+      border-radius: 20px;
+      padding: 0.7rem 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .actions-row {
-      display: flex; justify-content: center; align-items: center;
-      gap: 0.6rem; flex-wrap: wrap; width: 94%; max-width: 860px;
-      margin: 2.4rem 0 1.3rem 0;
+      display: flex; gap: 0.6rem; flex-wrap: wrap;
+      margin: 2.2rem 0 1.2rem;
     }
-
-    .search-bar-wrap {
-      width: 100%; display: flex; justify-content: center; margin: 1.2rem 0 2rem 0;
-    }
-    .search-bar {
-      display: flex; align-items: center; background: #fff; border-radius: 30px;
-      box-shadow: 0 6px 18px #bfbfbf41; padding: 0 1rem; width: 90%; max-width: 650px; height: 45px;
-    }
-    .search-bar input {
-      width: 90%; border: none; outline: none; font-size: 1rem;
-      background: transparent; margin-left: 10px; color: #222; font-family: inherit;
-    }
-    .search-bar input::placeholder { color: #376325b0; font-size: 1rem; }
-
-    .search-icon { width: 1.8rem; height: 1.8rem; color: #4A771C; }
 
     .plant-list {
-      display: grid; grid-template-columns: repeat(2,1fr);
-      justify-content: center; align-items: start; gap: 1rem;
-      width: 90%; max-width: 650px; margin-bottom: 3rem;
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 1rem;
+      width: 90%; max-width: 650px;
+      margin-bottom: 3rem;
     }
+
     .plant-card {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #BFE7BC; border-radius: 20px; padding: 0.7rem; height: 130px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1); cursor: pointer;
-      transition: transform 0.15s ease, background 0.2s ease;
+      background: #BFE7BC;
+      border-radius: 20px;
+      padding: 0.6rem;
+      height: 145px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: 0.15s;
     }
-    .plant-card:hover { transform: scale(1.03); }
-    .plant-card.selected { outline: 3px solid #4A771C; background: #aee6a8; }
+
+    .plant-card.selected {
+      outline: 3px solid #4A771C;
+      background: #aee6a8;
+    }
 
     .plant-img {
-      width: 50px; height: 50px; border-radius: 12px;
-      border: 2px solid #4A771C; background: #fff; object-fit: cover;
-    }
-    .plant-name {
-      font-size: 1rem; font-family: 'Baloo 2','Kalam',cursive,sans-serif;
-      color: #1A2B10; margin-top: 0.5rem; text-align: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: 2px solid #4A771C;
+      object-fit: cover;
+      background: #fff;
     }
 
-    @media (max-width:600px) {
-      .plant-list{grid-template-columns:1fr 1fr;gap:0.7rem;}
-      .plant-card{height:110px;border-radius:16px;}
-      .plant-img{width:42px;height:42px;}
-      .plant-name{font-size:0.9rem;}
-      .actions-row{gap:0.4rem;}
-      .action-btn,.fishes-btn{font-size:0.95rem;padding:0.5rem 1rem;}
+    .plant-name {
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .qr-btn {
+      font-size: 0.75rem;
+      background: #4A771C;
+      color: #fff;
+      border-radius: 12px;
+      padding: 4px 10px;
+      text-decoration: none;
     }
 
     .status-msg {
-      font-size: 0.95rem; color: #2e7d32;
-      margin-bottom: 1rem; text-align: center; min-height: 1em;
+      min-height: 1em;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: #2e7d32;
     }
   </style>
 </head>
+
 <body>
-  <div class="background-overlay"></div>
+<div class="background-overlay"></div>
 
-  <div class="content">
-    <div class="nav-row">
-      <button class="back-arrow" onclick="window.location.href='Admin.html'">
-        <svg viewBox="0 0 30 30" width="100%" height="100%">
-          <polyline points="20,6 10,15 20,24" fill="none" stroke="black"
-                    stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button class="fishes-btn" onclick="window.location.href='AdminFishes.html'">Fishes</button>
-    </div>
+<div class="content">
 
-    <div class="actions-row">
-      <button class="action-btn" onclick="window.location.href='AdminPlantCategories.html'">Categories</button>
-      <button class="action-btn" onclick="window.location.href='AdminAddEditPlant.html'">Add Plant</button>
-      <button class="action-btn" id="deleteBtn">Delete Plant</button>
-    </div>
-
-    <div id="statusMsg" class="status-msg"></div>
-
-    <div class="search-bar-wrap">
-      <div class="search-bar">
-        <svg class="search-icon" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="7" stroke="#4A771C" stroke-width="2" fill="none"/>
-          <line x1="18" y1="18" x2="15.6" y2="15.6" stroke="#4A771C" stroke-width="2" />
-        </svg>
-        <input type="text" id="plantSearch" placeholder="Search by plant name or category..." oninput="filterPlants()" autocomplete="off" />
-      </div>
-    </div>
-
-    <div class="plant-list" id="plantList"></div>
+  <div class="nav-row">
+    <button class="back-arrow" onclick="location.href='Admin.html'">◀</button>
+    <button class="fishes-btn" onclick="location.href='AdminFishes.html'">Fishes</button>
   </div>
 
-  <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
-  let deleteMode = false;
-  let selectedPlantId = null;
+  <div class="actions-row">
+    <button class="action-btn" onclick="location.href='AdminPlantCategories.html'">Categories</button>
+    <button class="action-btn" onclick="location.href='AdminAddEditPlant.html'">Add Plant</button>
+    <button class="action-btn" id="deleteBtn">Delete Plants</button>
+  </div>
 
-  const statusMsg = document.getElementById("statusMsg");
+  <div id="statusMsg" class="status-msg"></div>
 
-  function showMessage(msg, type = "success") {
-    statusMsg.textContent = msg;
-    statusMsg.style.color = type === "error" ? "#b22222" : "#2e7d32";
-    setTimeout(() => (statusMsg.textContent = ""), 2500);
-  }
+  <div class="plant-list" id="plantList"></div>
+</div>
 
-  // 🌿 Load all plants
-  async function loadPlants() {
-    try {
-      const res = await fetch(`${API_BASE}/api/plants`);
-      const plants = await res.json();
-      renderPlants(plants);
-    } catch (err) {
-      console.error("Error loading plants:", err);
-      showMessage("Error loading plants", "error");
-    }
-  }
+<script>
+const API_BASE = "https://mygardenbook-backend.onrender.com";
+const token = localStorage.getItem("sb_token");
 
-  // 🧩 Render plant cards
-  function renderPlants(plants) {
-    const list = document.getElementById("plantList");
-    list.innerHTML = "";
+let deleteMode = false;
+let selectedIds = [];
 
-    if (!plants || plants.length === 0) {
-      list.innerHTML = "<p style='text-align:center; color:#3b3b3b;'>No plants added yet.</p>";
-      return;
-    }
+const listEl = document.getElementById("plantList");
+const deleteBtn = document.getElementById("deleteBtn");
+const statusMsg = document.getElementById("statusMsg");
 
-    plants.forEach(p => {
-      const card = document.createElement("div");
-      card.className = "plant-card";
-      card.dataset.id = p.id;
-      card.dataset.category = p.category || "";
+function showMessage(msg, error=false) {
+  statusMsg.textContent = msg;
+  statusMsg.style.color = error ? "#b22222" : "#2e7d32";
+  setTimeout(() => statusMsg.textContent = "", 2500);
+}
 
-      card.innerHTML = `
-        <img src="${p.image_url || 'placeholder.jpg'}" class="plant-img" alt="${p.name}">
-        <div class="plant-name">${p.name}</div>
-      `;
+async function loadPlants() {
+  const res = await fetch(`${API_BASE}/api/plants`);
+  const plants = await res.json();
+  render(plants);
+}
 
-      card.onclick = () => handleCardClick(p.id, card);
-      list.appendChild(card);
-    });
-  }
+function render(plants) {
+  listEl.innerHTML = "";
+  plants.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "plant-card";
+    if (selectedIds.includes(p.id)) card.classList.add("selected");
 
-  // 🌱 Handle edit/delete
-  function handleCardClick(id, card) {
-    if (!deleteMode) {
-      window.location.href = `AdminAddEditPlant.html?id=${id}`;
-      return;
-    }
+    card.innerHTML = `
+      <img src="${p.image_url || 'placeholder.jpg'}" class="plant-img">
+      <div class="plant-name">${p.name}</div>
+      ${p.qr_code_url ? `<a class="qr-btn" href="${p.qr_code_url}" download>QR</a>` : ""}
+    `;
 
-    document.querySelectorAll(".plant-card").forEach(c => c.classList.remove("selected"));
-    card.classList.add("selected");
-    selectedPlantId = id;
-  }
-
-  // 🗑 Delete selected plant
-  async function toggleDeleteMode() {
-    const btn = document.getElementById("deleteBtn");
-
-    if (!deleteMode) {
-      deleteMode = true;
-      selectedPlantId = null;
-      btn.style.background = "#E57373";
-      btn.textContent = "Confirm Delete";
-      showMessage("Tap a plant to delete", "info");
-      return;
-    }
-
-    if (!selectedPlantId) {
-      showMessage("No plant selected", "error");
-      resetDeleteMode();
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/plants/${selectedPlantId}/delete`, {
-        method: "DELETE"
-      });
-
-      if (res.ok) {
-        showMessage("Plant deleted successfully", "success");
-        loadPlants();
-      } else {
-        showMessage("Failed to delete plant", "error");
+    card.onclick = () => {
+      if (!deleteMode) {
+        location.href = `AdminAddEditPlant.html?id=${p.id}`;
+        return;
       }
-    } catch (err) {
-      console.error("Error deleting plant:", err);
-      showMessage("Error deleting plant", "error");
-    }
 
-    resetDeleteMode();
+      if (selectedIds.includes(p.id)) {
+        selectedIds = selectedIds.filter(x => x !== p.id);
+      } else {
+        selectedIds.push(p.id);
+      }
+      render(plants);
+      deleteBtn.textContent = `Confirm Delete (${selectedIds.length})`;
+    };
+
+    listEl.appendChild(card);
+  });
+}
+
+deleteBtn.onclick = async () => {
+  if (!deleteMode) {
+    deleteMode = true;
+    deleteBtn.textContent = "Confirm Delete (0)";
+    deleteBtn.style.background = "#E57373";
+    showMessage("Select plants to delete");
+    return;
   }
 
-  function resetDeleteMode() {
-    deleteMode = false;
-    selectedPlantId = null;
-
-    const btn = document.getElementById("deleteBtn");
-    btn.style.background = "#BFE7BC";
-    btn.textContent = "Delete Plant";
-
-    document.querySelectorAll(".plant-card").forEach(c => c.classList.remove("selected"));
+  if (!selectedIds.length) {
+    showMessage("No plants selected", true);
+    resetDelete();
+    return;
   }
 
-  document.getElementById("deleteBtn").addEventListener("click", toggleDeleteMode);
-
-  // 🔍 Search filter
-  function filterPlants() {
-    const input = document.getElementById("plantSearch").value.toLowerCase();
-    const cards = document.querySelectorAll(".plant-card");
-
-    cards.forEach(card => {
-      const name = card.querySelector(".plant-name").textContent.toLowerCase();
-      const category = (card.dataset.category || "").toLowerCase();
-      card.style.display = (name.includes(input) || category.includes(input)) ? "" : "none";
+  for (const id of selectedIds) {
+    await fetch(`${API_BASE}/api/plants/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
     });
   }
 
+  showMessage(`${selectedIds.length} plants deleted`);
+  resetDelete();
   loadPlants();
+};
+
+function resetDelete() {
+  deleteMode = false;
+  selectedIds = [];
+  deleteBtn.textContent = "Delete Plants";
+  deleteBtn.style.background = "#BFE7BC";
+}
+
+loadPlants();
 </script>
 
 <script src="/js/config.js"></script>

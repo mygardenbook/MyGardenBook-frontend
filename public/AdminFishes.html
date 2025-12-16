@@ -17,38 +17,32 @@
     overflow-x: hidden;
   }
 
-  /* BACKGROUND */
   .background-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    inset: 0;
     background: url('Bg.png') no-repeat center center fixed;
     background-size: cover;
     z-index: 0;
   }
   .background-overlay::after {
     content: "";
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     background: rgba(255,255,255,0.72);
-    z-index: 1;
   }
 
-  /* MAIN CONTENT */
   .content {
     position: relative;
     z-index: 2;
-    width: 100%;
     padding-top: 4rem;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  /* NAV */
   .nav-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     width: 94%;
     max-width: 860px;
   }
@@ -61,66 +55,22 @@
     cursor: pointer;
   }
 
-  button {
-    font-family: inherit;
-  }
-
-  /* ACTION BUTTONS */
-  .plants-btn,
-  .action-btn {
+  .plants-btn, .action-btn {
     background: #BFE7BC;
     border: none;
     border-radius: 20px;
-    font-size: 1.05rem;
-    font-weight: bold;
     padding: 0.7rem 1.3rem;
-    color: #262A23;
+    font-weight: bold;
     cursor: pointer;
-    transition: 0.18s;
-  }
-  .plants-btn:hover,
-  .action-btn:hover {
-    background: #b3e572;
   }
 
   .actions-row {
     display: flex;
-    justify-content: center;
     gap: 0.6rem;
     flex-wrap: wrap;
-    margin: 2rem 0 1rem 0;
-    width: 94%;
-    max-width: 860px;
+    margin: 2rem 0 1rem;
   }
 
-  /* SEARCH BAR */
-  .search-bar-wrap {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin: 1rem 0 2rem;
-  }
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    width: 90%;
-    max-width: 650px;
-    border-radius: 30px;
-    box-shadow: 0 4px 14px #00000020;
-    padding: 0 1rem;
-    height: 46px;
-  }
-  .search-bar input {
-    width: 90%;
-    border: none;
-    background: none;
-    outline: none;
-    font-size: 1rem;
-    margin-left: 10px;
-  }
-
-  /* FISH GRID */
   .fish-list {
     display: grid;
     grid-template-columns: repeat(2,1fr);
@@ -133,53 +83,53 @@
   .fish-card {
     background: #BFE7BC;
     border-radius: 18px;
-    padding: 0.8rem;
-    box-shadow: 0 3px 10px #00000018;
+    padding: 0.6rem;
+    height: 145px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: 0.12s ease;
+    justify-content: space-between;
     cursor: pointer;
-  }
-  .fish-card:hover {
-    transform: scale(1.03);
+    transition: 0.15s;
   }
 
   .fish-card.selected {
-    border: 3px solid #4A771C;
+    outline: 3px solid #4A771C;
     background: #aee6a8;
   }
 
   .fish-img {
-    width: 55px;
-    height: 55px;
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
-    object-fit: cover;
     border: 2px solid #4A771C;
+    object-fit: cover;
+    background: #fff;
   }
+
   .fish-name {
-    margin-top: 0.5rem;
-    font-size: 1rem;
-    color: #1A2B10;
+    font-size: 0.95rem;
     text-align: center;
   }
 
-  .status-msg {
-    margin-bottom: 1rem;
-    min-height: 1rem;
-    font-size: 1rem;
-    color: #206025;
+  .qr-btn {
+    font-size: 0.75rem;
+    background: #4A771C;
+    color: #fff;
+    border-radius: 12px;
+    padding: 4px 10px;
+    text-decoration: none;
   }
 
-  @media (max-width:600px){
-    .fish-list { gap: 0.7rem; }
-    .fish-card { height: 120px; }
-    .fish-img { width: 45px; height: 45px; }
-    .fish-name { font-size: 0.9rem; }
+  .status-msg {
+    min-height: 1em;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: #1d6d25;
   }
 </style>
-
 </head>
+
 <body>
 
 <div class="background-overlay"></div>
@@ -187,14 +137,7 @@
 <div class="content">
 
   <div class="nav-row">
-    <button class="back-arrow" onclick="location.href='Admin.html'">
-      <svg viewBox="0 0 30 30" width="100%" height="100%">
-        <polyline points="20,6 10,15 20,24"
-          stroke="black" stroke-width="4" fill="none"
-          stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-
+    <button class="back-arrow" onclick="location.href='Admin.html'">◀</button>
     <button class="plants-btn" onclick="location.href='AdminPlants.html'">Plants</button>
   </div>
 
@@ -205,139 +148,112 @@
   </div>
 
   <div class="status-msg" id="statusMsg"></div>
-
-  <div class="search-bar-wrap">
-    <div class="search-bar">
-      <svg width="24" height="24" viewBox="0 0 24 24">
-        <circle cx="10" cy="10" r="6" stroke="#4A771C" stroke-width="2" fill="none"></circle>
-        <line x1="15" y1="15" x2="20" y2="20" stroke="#4A771C" stroke-width="2"></line>
-      </svg>
-      <input type="text" id="fishSearch" placeholder="Search by name or category…" oninput="filterFishes()">
-    </div>
-  </div>
-
   <div class="fish-list" id="fishList"></div>
+
 </div>
 
 <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
+const API_BASE = "https://mygardenbook-backend.onrender.com";
+const token = localStorage.getItem("sb_token");
 
-  let deleteMode = false;
-  let selectedFishId = null;
+let deleteMode = false;
+let selectedIds = [];
 
-  const statusMsg = document.getElementById("statusMsg");
+const listEl = document.getElementById("fishList");
+const deleteBtn = document.getElementById("deleteBtn");
+const statusMsg = document.getElementById("statusMsg");
 
-  function showMessage(msg, type="success") {
-    statusMsg.textContent = msg;
-    statusMsg.style.color = type === "error" ? "#b22222" : "#1d6d25";
-    setTimeout(() => statusMsg.textContent = "", 2500);
+function showMessage(msg, error=false) {
+  statusMsg.textContent = msg;
+  statusMsg.style.color = error ? "#b22222" : "#1d6d25";
+  setTimeout(() => statusMsg.textContent = "", 2500);
+}
+
+async function loadFishes() {
+  const res = await fetch(`${API_BASE}/api/fishes`);
+  const fishes = await res.json();
+  render(fishes);
+}
+
+function render(fishes) {
+  listEl.innerHTML = "";
+
+  fishes.forEach(f => {
+    const card = document.createElement("div");
+    card.className = "fish-card";
+    if (selectedIds.includes(f.id)) card.classList.add("selected");
+
+    let qrHtml = "";
+    if (f.qr_code_url) {
+      qrHtml =
+        '<a class="qr-btn" href="' +
+        f.qr_code_url +
+        '" download onclick="event.stopPropagation()">QR</a>';
+    }
+
+    card.innerHTML =
+      '<img src="' + (f.image_url || "placeholder.jpg") + '" class="fish-img">' +
+      '<div class="fish-name">' + f.name + "</div>" +
+      qrHtml;
+
+    card.onclick = () => {
+      if (!deleteMode) {
+        location.href = `AdminAddEditFish.html?id=${f.id}`;
+        return;
+      }
+
+      if (selectedIds.includes(f.id)) {
+        selectedIds = selectedIds.filter(x => x !== f.id);
+      } else {
+        selectedIds.push(f.id);
+      }
+
+      render(fishes);
+      deleteBtn.textContent = `Confirm Delete (${selectedIds.length})`;
+    };
+
+    listEl.appendChild(card);
+  });
+}
+
+
+deleteBtn.onclick = async () => {
+  if (!deleteMode) {
+    deleteMode = true;
+    deleteBtn.textContent = "Confirm Delete (0)";
+    deleteBtn.style.background = "#E57373";
+    showMessage("Select fishes to delete");
+    return;
   }
 
-  // LOAD FISHES
-  async function loadFishes() {
-    try {
-      const res = await fetch(`${API_BASE}/api/fishes`);
-      const fishes = await res.json();
-      renderFishes(fishes);
-    } catch (err) {
-      showMessage("Error loading fishes", "error");
-    }
+  if (!selectedIds.length) {
+    showMessage("No fish selected", true);
+    resetDelete();
+    return;
   }
 
-  // RENDER FISH LIST
-  function renderFishes(fishes) {
-    const list = document.getElementById("fishList");
-    list.innerHTML = "";
-
-    if (!fishes.length) {
-      list.innerHTML = "<p>No fishes added yet.</p>";
-      return;
-    }
-
-    fishes.forEach(f => {
-      const card = document.createElement("div");
-      card.className = "fish-card";
-      card.dataset.id = f.id;
-      card.dataset.category = f.category || "";
-
-      card.innerHTML = `
-        <img src="${f.image || 'placeholder.jpg'}" class="fish-img">
-        <div class="fish-name">${f.commonName || "Unnamed"}</div>
-      `;
-
-      card.onclick = () => handleFishClick(f.id, card);
-      list.appendChild(card);
+  for (const id of selectedIds) {
+    await fetch(`${API_BASE}/api/fishes/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
     });
   }
 
-  // CLICK HANDLER
-  function handleFishClick(id, card) {
-    if (!deleteMode) {
-      location.href = `AdminAddEditFish.html?id=${id}`;
-      return;
-    }
-
-    document.querySelectorAll(".fish-card").forEach(c => c.classList.remove("selected"));
-    card.classList.add("selected");
-    selectedFishId = id;
-  }
-
-  // DELETE MODE
-  async function toggleDeleteMode() {
-    const btn = document.getElementById("deleteBtn");
-
-    if (!deleteMode) {
-      deleteMode = true;
-      btn.textContent = "Confirm Delete";
-      btn.style.background = "#E57373";
-      showMessage("Tap a fish to delete", "info");
-      return;
-    }
-
-    if (!selectedFishId) {
-      showMessage("No fish selected", "error");
-      resetDeleteMode();
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/fishes/${selectedFishId}`, { method: "DELETE" });
-
-      if (res.ok) showMessage("Fish deleted!");
-      else showMessage("Delete failed", "error");
-
-      loadFishes();
-    } catch {
-      showMessage("Delete error", "error");
-    }
-
-    resetDeleteMode();
-  }
-
-  function resetDeleteMode() {
-    deleteMode = false;
-    selectedFishId = null;
-    const btn = document.getElementById("deleteBtn");
-    btn.textContent = "Delete Fish";
-    btn.style.background = "#BFE7BC";
-  }
-
-  document.getElementById("deleteBtn").onclick = toggleDeleteMode;
-
-  // SEARCH
-  function filterFishes() {
-    const search = document.getElementById("fishSearch").value.toLowerCase();
-    document.querySelectorAll(".fish-card").forEach(card => {
-      const name = card.querySelector(".fish-name").textContent.toLowerCase();
-      const category = (card.dataset.category || "").toLowerCase();
-      card.style.display = name.includes(search) || category.includes(search) ? "" : "none";
-    });
-  }
-
+  showMessage(`${selectedIds.length} fishes deleted`);
+  resetDelete();
   loadFishes();
+};
+
+function resetDelete() {
+  deleteMode = false;
+  selectedIds = [];
+  deleteBtn.textContent = "Delete Fish";
+  deleteBtn.style.background = "#BFE7BC";
+}
+
+loadFishes();
 </script>
 
 <script src="/js/config.js"></script>
-
 </body>
 </html>

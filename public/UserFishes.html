@@ -24,8 +24,7 @@
   body::before {
     content:"";
     position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
+    inset:0;
     background:rgba(255,255,255,0.7);
     z-index:0;
   }
@@ -47,13 +46,16 @@
     cursor:pointer; z-index:10;
   }
 
-  /* Search bar */
   .search-wrap {
-    width:90%; max-width:600px;
+    width:90%;
+    max-width:600px;
     margin:0.8rem auto 2rem auto;
+    display:flex;
+    flex-direction:column;
+    gap:0.6rem;
   }
 
-  .search-box {
+  .search-box, .filter-box {
     background:white;
     padding:0.7rem 1rem;
     display:flex;
@@ -62,13 +64,15 @@
     box-shadow:0 4px 12px rgba(0,0,0,0.15);
   }
 
-  .search-box input {
+  .search-box input,
+  .filter-box select {
     width:100%;
     border:none;
     outline:none;
     font-size:1rem;
     margin-left:8px;
     background:none;
+    font-family:inherit;
   }
 
   .grid {
@@ -110,7 +114,6 @@
     .card { padding:0.75rem; }
   }
 </style>
-
 </head>
 
 <body>
@@ -125,15 +128,34 @@
 
 <div class="content">
 
-  <!-- Search -->
+  <!-- Search / Filter / Sort -->
   <div class="search-wrap">
+
+    <!-- SEARCH -->
     <div class="search-box">
       <svg width="20" height="20" viewBox="0 0 24 24">
         <circle cx="10" cy="10" r="7" stroke="#4A771C" stroke-width="2" fill="none"/>
         <line x1="15" y1="15" x2="20" y2="20" stroke="#4A771C" stroke-width="2"/>
       </svg>
-      <input id="fishSearch" placeholder="Search for a fish..." oninput="filterFishes()">
+      <input id="searchInput" placeholder="Search fishes..." oninput="applyFilters()">
     </div>
+
+    <!-- CATEGORY FILTER -->
+    <div class="filter-box">
+      <select id="categoryFilter" onchange="applyFilters()">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+
+    <!-- SORT -->
+    <div class="filter-box">
+      <select id="sortSelect" onchange="applyFilters()">
+        <option value="recent">Recently Added</option>
+        <option value="az">Name A → Z</option>
+        <option value="za">Name Z → A</option>
+      </select>
+    </div>
+
   </div>
 
   <!-- Grid -->
@@ -142,77 +164,144 @@
 </div>
 
 <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
+const API_BASE = "https://mygardenbook-backend.onrender.com";
+const PAGE_SIZE = 12;
 
-  function pick(...values) {
-    return values.find(v => v !== undefined && v !== null && String(v).trim() !== "") || null;
+let allFishes = [];
+let filteredList = [];
+let currentIndex = 0;
+let isLoadingMore = false;
+
+function pick(...values) {
+  return values.find(v => v !== undefined && v !== null && String(v).trim() !== "") || "";
+}
+
+function resolveImg(src) {
+  if (!src) return "placeholder.jpg";
+  if (/^https?:\/\//.test(src)) return src;
+  if (src.startsWith("/")) return API_BASE + src;
+  return src;
+}
+
+function getId(obj) {
+  return pick(obj.id, obj._id, obj.fishId, obj.fish_id);
+}
+
+/* ---------------- LOAD CATEGORIES ---------------- */
+async function loadCategories() {
+  const res = await fetch(`${API_BASE}/api/categories`);
+  const cats = await res.json();
+  const sel = document.getElementById("categoryFilter");
+
+  cats.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.name;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+/* ---------------- LOAD DATA ---------------- */
+async function loadFishes() {
+  const res = await fetch(`${API_BASE}/api/fishes`);
+  allFishes = await res.json();
+  applyFilters();
+}
+
+/* ---------------- FILTER + SORT ---------------- */
+function applyFilters() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const cat = document.getElementById("categoryFilter").value;
+  const sort = document.getElementById("sortSelect").value;
+
+  filteredList = [...allFishes];
+
+  filteredList = filteredList.filter(f =>
+    pick(f.name, f.commonName, f.scientific_name).toLowerCase().includes(q) ||
+    pick(f.category).toLowerCase().includes(q)
+  );
+
+  if (cat) {
+    filteredList = filteredList.filter(f => pick(f.category) === cat);
   }
 
-  function resolveImg(src) {
-    if (!src) return "placeholder.jpg";
-    if (/^https?:\/\//.test(src)) return src;
-    if (src.startsWith("/")) return API_BASE + src;
-    return src;
-  }
-
-  function getId(obj) {
-    return pick(obj.id, obj._id, obj.fishId, obj.fish_id);
-  }
-
-  async function loadFishes() {
-    try {
-      const res = await fetch(`${API_BASE}/api/fishes`);
-      if (!res.ok) throw new Error("Fetch error");
-
-      const fishes = await res.json();
-      window.allFishes = fishes;
-      renderFishes(fishes);
-    } catch(err) {
-      document.getElementById("fishGrid").innerHTML = "<p>Failed to load fishes.</p>";
-    }
-  }
-
-  function renderFishes(fishes) {
-    const grid = document.getElementById("fishGrid");
-    grid.innerHTML = "";
-
-    if (!fishes.length) {
-      grid.innerHTML = "<p>No fishes found.</p>";
-      return;
-    }
-
-    fishes.forEach(f => {
-      const id = getId(f);
-      const img = resolveImg(
-        pick(f.image, f.image_url, f.imageUrl, f.img, f.photo)
-      );
-
-      const name = pick(f.name, f.commonName, f.scientific_name) || "Unknown";
-
-      const card = document.createElement("div");
-      card.className = "card";
-
-      card.innerHTML = `
-        <img src="${img}">
-        <div class="card-name">${name}</div>
-      `;
-
-      card.onclick = () => window.location.href = `UserEachFish.html?id=${encodeURIComponent(id)}`;
-      grid.appendChild(card);
-    });
-  }
-
-  function filterFishes() {
-    const q = document.getElementById("fishSearch").value.toLowerCase();
-    const filtered = window.allFishes.filter(f =>
-      (pick(f.name, f.commonName, f.scientific_name) || "").toLowerCase().includes(q) ||
-      (pick(f.category, f.category_name, f.categoryName) || "").toLowerCase().includes(q)
+  if (sort === "az") {
+    filteredList.sort((a,b) =>
+      pick(a.name, a.commonName).localeCompare(pick(b.name, b.commonName))
     );
-    renderFishes(filtered);
+  } else if (sort === "za") {
+    filteredList.sort((a,b) =>
+      pick(b.name, b.commonName).localeCompare(pick(a.name, b.commonName))
+    );
+  } else {
+    filteredList.sort((a,b) => getId(b) - getId(a));
   }
 
-  loadFishes();
+  resetAndRender();
+}
+
+/* ---------------- PAGINATION ---------------- */
+function resetAndRender() {
+  currentIndex = 0;
+  document.getElementById("fishGrid").innerHTML = "";
+  loadMore();
+}
+
+function loadMore() {
+  if (isLoadingMore) return;
+  isLoadingMore = true;
+
+  const nextItems = filteredList.slice(currentIndex, currentIndex + PAGE_SIZE);
+  currentIndex += PAGE_SIZE;
+
+  renderFishes(nextItems);
+  isLoadingMore = false;
+}
+
+/* ---------------- RENDER ---------------- */
+function renderFishes(fishes) {
+  const grid = document.getElementById("fishGrid");
+
+  if (!grid.children.length && !fishes.length) {
+    grid.innerHTML = "<p>No fishes found.</p>";
+    return;
+  }
+
+  fishes.forEach(f => {
+    const id = getId(f);
+    const img = resolveImg(
+      pick(f.image, f.image_url, f.imageUrl, f.img, f.photo)
+    );
+    const name = pick(f.name, f.commonName, f.scientific_name) || "Unknown";
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${img}">
+      <div class="card-name">${name}</div>
+    `;
+    card.onclick = () =>
+      window.location.href = `UserEachFish.html?id=${encodeURIComponent(id)}`;
+
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- SCROLL LISTENER ---------------- */
+window.addEventListener("scroll", () => {
+  if (
+    window.innerHeight + window.scrollY >=
+    document.body.offsetHeight - 300
+  ) {
+    loadMore();
+  }
+});
+
+/* ---------------- INIT ---------------- */
+loadCategories();
+loadFishes();
 </script>
+
 
 <script src="/js/config.js"></script>
 </body>

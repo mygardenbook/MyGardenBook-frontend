@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fish Details</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -13,7 +14,7 @@
 
   body {
     font-family: 'Baloo 2','Kalam',sans-serif;
-    background: url('/Bg.png') no-repeat center center fixed;   /* ✅ Correct path */
+    background: url('/Bg.png') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     min-height: 100vh;
@@ -21,12 +22,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* translucent overlay like other pages */
   body::before{
     content:"";
     position:fixed;
-    top:0; left:0;
-    width:100vw; height:100vh;
+    inset:0;
     background: rgba(255,255,255,0.7);
     z-index: 0;
   }
@@ -40,8 +39,8 @@
     background: none;
     border: none;
     cursor: pointer;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -53,7 +52,7 @@
     stroke-linejoin:round;
   }
 
-  /* Main content wrapper */
+  /* Main content */
   .container {
     position: relative;
     z-index: 5;
@@ -72,7 +71,6 @@
     perspective: 1200px;
     margin-top: 5.3rem;
     cursor: pointer;
-    z-index: 10;
   }
 
   .flip-inner {
@@ -91,8 +89,7 @@
 
   .flip-front, .flip-back {
     position:absolute;
-    top:0; left:0;
-    width:100%; height:100%;
+    inset:0;
     backface-visibility:hidden;
     border-radius: 20px;
     display:flex;
@@ -120,7 +117,7 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
   }
 
-  /* Details section */
+  /* Details */
   .details {
     width: 88%;
     max-width: 520px;
@@ -130,7 +127,6 @@
   }
 
   .details p { margin-bottom: 0.45rem; }
-  .details b { font-weight: 700; }
 
   .green-box {
     background: rgba(143,216,113,0.35);
@@ -174,46 +170,76 @@
     font-size: 1rem;
   }
 
-  /* RESPONSIVE */
-  @media (max-width: 780px) {
-    .flip-card { width: 88%; }
-    .details, .ai-section { width: 94%; }
-  }
+  /* ---------------- MOBILE OPTIMIZATION ---------------- */
+  @media (max-width: 600px) {
 
-  @media (max-width: 430px) {
-    .qr-flip { width: 100px; height: 100px; }
-    .flip-card { margin-top: 4.3rem; }
+    .back-arrow {
+      width: 52px;
+      height: 52px;
+    }
+
+    .flip-card {
+      width: 92%;
+      margin-top: 4.4rem;
+    }
+
+    .qr-flip {
+      width: 150px;
+      height: 150px;
+    }
+
+    .details {
+      width: 94%;
+      font-size: 1.15rem;
+    }
+
+    .green-box {
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .ai-section {
+      width: 94%;
+      padding: 1.2rem;
+    }
+
+    .ai-section textarea {
+      font-size: 1.05rem;
+      min-height: 90px;
+    }
+
+    .ai-section button {
+      width: 100%;
+      font-size: 1.05rem;
+    }
   }
 </style>
 </head>
+
 <body>
 
-<!-- Back arrow -->
-<button class="back-arrow" onclick="window.location.href='Login.html'" aria-label="Back to login">
-  <svg viewBox="0 0 30 30" width="56" height="56">
+<button class="back-arrow" onclick="window.location.href='Login.html'" aria-label="Back">
+  <svg viewBox="0 0 30 30" width="100%" height="100%">
     <polyline points="20,6 10,15 20,24" fill="none"></polyline>
   </svg>
 </button>
 
 <div class="container">
 
-  <!-- Flip Card -->
   <div class="flip-card" id="flipCard">
     <div class="flip-inner">
       <div class="flip-front">
         <img id="fishImage" src="placeholder.jpg" alt="Fish image">
       </div>
-
       <div class="flip-back">
         <img id="fishQR" class="qr-flip" src="qr_placeholder.png" alt="QR code">
-        <p style="color:#1f2715; font-weight:600;">Scan Me</p>
+        <p style="font-weight:600;">Scan Me</p>
       </div>
     </div>
   </div>
 
-  <!-- Details -->
   <div class="details">
-    <p id="fishNameHeading" style="font-size:1.4rem;font-weight:700;margin-bottom:0.7rem;">Loading...</p>
+    <p id="fishNameHeading" style="font-size:1.45rem;font-weight:700;margin-bottom:0.7rem;">Loading...</p>
 
     <p><b>Scientific Name:</b> <span id="scientificName">Loading...</span></p>
     <p><b>Category:</b> <span id="category">Loading...</span></p>
@@ -222,75 +248,76 @@
     <div class="green-box" id="description">Loading...</div>
   </div>
 
-  <!-- AI Section -->
   <div class="ai-section">
     <label for="aiQuestion">Ask AI</label>
     <textarea id="aiQuestion" placeholder="Ask something about this fish..."></textarea>
     <button onclick="handleUniversalAI()">Chat with AI</button>
-    <div id="aiResponse" style="background:#fff;padding:1rem;border-radius:10px;margin-top:0.6rem;max-height:220px;overflow-y:auto;"></div>
+    <div id="aiResponse"
+         style="background:#fff;padding:1rem;border-radius:10px;margin-top:0.6rem;max-height:220px;overflow-y:auto;"></div>
   </div>
+
 </div>
 
 <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
+const API_BASE = "https://mygardenbook-backend.onrender.com";
 
-  async function fetchFishById(id) {
-    const urls = [
-      `${API_BASE}/api/fish/${id}`,
-      `${API_BASE}/api/fishes/${id}`
-    ];
-    for (const u of urls) {
-      try {
-        const r = await fetch(u);
-        if (r.ok) return r.json();
-      } catch {}
-    }
-    throw new Error("Unable to load fish");
-  }
-
-  function pick(...v) {
-    for (const x of v) if (x && String(x).trim() !== "") return x;
-    return null;
-  }
-
-  function resolveImg(src) {
-    if (!src) return null;
-    if (src.startsWith("http")) return src;
-    if (src.startsWith("/")) return API_BASE + src;
-    return src;
-  }
-
-  const params = new URLSearchParams(location.search);
-  const fishId = params.get("id");
-
-  const fishImage = document.getElementById("fishImage");
-  const fishQR = document.getElementById("fishQR");
-  const nameHeading = document.getElementById("fishNameHeading");
-  const sciEl = document.getElementById("scientificName");
-  const catEl = document.getElementById("category");
-  const descEl = document.getElementById("description");
-
-  const flipCard = document.getElementById("flipCard");
-  flipCard.addEventListener("click", () => flipCard.classList.toggle("flipped"));
-
-  async function loadFish() {
+async function fetchFishById(id) {
+  const urls = [
+    `${API_BASE}/api/fish/${id}`,
+    `${API_BASE}/api/fishes/${id}`
+  ];
+  for (const u of urls) {
     try {
-      const fish = await fetchFishById(fishId);
-
-      fishImage.src = resolveImg(pick(fish.image, fish.image_url, fish.img)) || "placeholder.jpg";
-      fishQR.src = resolveImg(pick(fish.qr_code_url, fish.qr)) || "qr_placeholder.png";
-
-      nameHeading.textContent = pick(fish.name, fish.commonName) || "Unnamed Fish";
-      sciEl.textContent = pick(fish.scientific_name, fish.scientificName) || "N/A";
-      catEl.textContent = pick(fish.category, fish.category_name) || "Uncategorized";
-      descEl.textContent = pick(fish.description, fish.desc) || "No description available.";
-    } catch {
-      nameHeading.textContent = "Error loading fish";
-      descEl.textContent = "Unable to load fish details.";
-    }
+      const r = await fetch(u);
+      if (r.ok) return r.json();
+    } catch {}
   }
+  throw new Error("Unable to load fish");
+}
 
-  loadFish();
+function pick(...v) {
+  for (const x of v) if (x && String(x).trim() !== "") return x;
+  return null;
+}
+
+function resolveImg(src) {
+  if (!src) return null;
+  if (src.startsWith("http")) return src;
+  if (src.startsWith("/")) return API_BASE + src;
+  return src;
+}
+
+const params = new URLSearchParams(location.search);
+const fishId = params.get("id");
+
+const fishImage = document.getElementById("fishImage");
+const fishQR = document.getElementById("fishQR");
+const nameHeading = document.getElementById("fishNameHeading");
+const sciEl = document.getElementById("scientificName");
+const catEl = document.getElementById("category");
+const descEl = document.getElementById("description");
+
+const flipCard = document.getElementById("flipCard");
+flipCard.addEventListener("click", () => flipCard.classList.toggle("flipped"));
+
+async function loadFish() {
+  try {
+    const fish = await fetchFishById(fishId);
+
+    fishImage.src = resolveImg(pick(fish.image, fish.image_url, fish.img)) || "placeholder.jpg";
+    fishQR.src = resolveImg(pick(fish.qr_code_url, fish.qr)) || "qr_placeholder.png";
+
+    nameHeading.textContent = pick(fish.name, fish.commonName) || "Unnamed Fish";
+    sciEl.textContent = pick(fish.scientific_name, fish.scientificName) || "N/A";
+    catEl.textContent = pick(fish.category, fish.category_name) || "Uncategorized";
+    descEl.textContent = pick(fish.description, fish.desc) || "No description available.";
+  } catch {
+    nameHeading.textContent = "Error loading fish";
+    descEl.textContent = "Unable to load fish details.";
+  }
+}
+
+loadFish();
 </script>
 
 <script src="/js/config.js"></script>

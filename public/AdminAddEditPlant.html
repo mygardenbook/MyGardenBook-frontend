@@ -178,5 +178,42 @@
   <script src="js/chat.js"></script>
   <script src="js/AdminAddEdit.js"></script>
 
+  <script>
+  const API_BASE = window.__ENV.API_BASE;
+  const categorySelect = document.getElementById("category");
+  const newCategoryWrapper = document.getElementById("newCategoryWrapper");
+
+  async function loadCategories(selected = "") {
+    const res = await fetch(`${API_BASE}/api/categories`);
+    const categories = await res.json();
+
+    categorySelect.innerHTML = `
+      <option value="">-- Select Category --</option>
+      <option value="_new">+ Add New Category</option>
+    `;
+
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.name;
+      opt.textContent = cat.name;
+      if (cat.name === selected) opt.selected = true;
+      categorySelect.appendChild(opt);
+    });
+  }
+
+  categorySelect.addEventListener("change", () => {
+    newCategoryWrapper.style.display =
+      categorySelect.value === "_new" ? "flex" : "none";
+  });
+
+  window.addEventListener("load", () => {
+    if (window.editData && window.editData.category) {
+      loadCategories(window.editData.category);
+    } else {
+      loadCategories();
+    }
+  });
+</script>
+
 </body>
 </html>

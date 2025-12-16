@@ -21,8 +21,7 @@
   body::before {
     content:"";
     position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
+    inset:0;
     background:rgba(255,255,255,0.7);
     z-index:0;
   }
@@ -52,9 +51,12 @@
     width: 90%;
     max-width: 600px;
     margin: 1rem auto 2rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
   }
 
-  .search-box {
+  .search-box, .filter-box {
     display: flex;
     align-items: center;
     background: #fff;
@@ -63,13 +65,15 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
 
-  .search-box input {
+  .search-box input,
+  .filter-box select {
     border: none;
     outline: none;
     width: 100%;
     font-size: 1rem;
     background: none;
     margin-left: 8px;
+    font-family: inherit;
   }
 
   .grid {
@@ -112,7 +116,6 @@
     .card img { width: 64px; height: 64px; }
   }
 </style>
-
 </head>
 
 <body>
@@ -128,80 +131,173 @@
 <div class="content">
 
   <div class="search-wrap">
+
+    <!-- SEARCH -->
     <div class="search-box">
       <svg width="20" height="20" viewBox="0 0 24 24">
         <circle cx="10" cy="10" r="7" stroke="#4A771C" stroke-width="2" fill="none"/>
         <line x1="15" y1="15" x2="20" y2="20" stroke="#4A771C" stroke-width="2"/>
       </svg>
-      <input id="searchInput" placeholder="Search for a plant..." oninput="filterPlants()">
+      <input id="searchInput" placeholder="Search plants..." oninput="applyFilters()">
     </div>
+
+    <!-- CATEGORY FILTER -->
+    <div class="filter-box">
+      <select id="categoryFilter" onchange="applyFilters()">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+
+    <!-- SORT -->
+    <div class="filter-box">
+      <select id="sortSelect" onchange="applyFilters()">
+        <option value="recent">Recently Added</option>
+        <option value="az">Name A → Z</option>
+        <option value="za">Name Z → A</option>
+      </select>
+    </div>
+
   </div>
 
   <div class="grid" id="plantGrid"></div>
-
 </div>
 
 <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
+const API_BASE = "https://mygardenbook-backend.onrender.com";
+const PAGE_SIZE = 12;
 
-  function pick(...values) {
-    return values.find(v => v !== undefined && v !== null && String(v).trim() !== "") || null;
+let allPlants = [];
+let filteredList = [];
+let currentIndex = 0;
+let isLoadingMore = false;
+
+function pick(...values) {
+  return values.find(v => v !== undefined && v !== null && String(v).trim() !== "") || "";
+}
+
+function resolveImg(src) {
+  if (!src) return null;
+  if (src.startsWith("http")) return src;
+  if (src.startsWith("/")) return API_BASE + src;
+  return src;
+}
+
+function plantId(p) {
+  return pick(p.id, p._id, p.plantId, p.plant_id);
+}
+
+/* ---------------- LOAD CATEGORIES ---------------- */
+async function loadCategories() {
+  const res = await fetch(`${API_BASE}/api/categories`);
+  const cats = await res.json();
+  const sel = document.getElementById("categoryFilter");
+
+  cats.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.name;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+/* ---------------- LOAD DATA ---------------- */
+async function loadPlants() {
+  const res = await fetch(`${API_BASE}/api/plants`);
+  allPlants = await res.json();
+  applyFilters();
+}
+
+/* ---------------- FILTER + SORT ---------------- */
+function applyFilters() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const cat = document.getElementById("categoryFilter").value;
+  const sort = document.getElementById("sortSelect").value;
+
+  filteredList = [...allPlants];
+
+  filteredList = filteredList.filter(p =>
+    pick(p.name, p.commonName, p.scientific_name).toLowerCase().includes(q) ||
+    pick(p.category).toLowerCase().includes(q)
+  );
+
+  if (cat) {
+    filteredList = filteredList.filter(p => pick(p.category) === cat);
   }
 
-  function resolveImg(src) {
-    if (!src) return null;
-    if (src.startsWith("http")) return src;
-    if (src.startsWith("/")) return API_BASE + src;
-    return src;
-  }
-
-  function plantId(p) {
-    return pick(p.id, p._id, p.plantId, p.plant_id);
-  }
-
-  async function loadPlants() {
-    const res = await fetch(`${API_BASE}/api/plants`);
-    const plants = await res.json();
-    window.allPlants = plants;
-    renderPlants(plants);
-  }
-
-  function renderPlants(plants) {
-    const grid = document.getElementById("plantGrid");
-    grid.innerHTML = "";
-
-    if (!plants.length) {
-      grid.innerHTML = "<p>No plants found.</p>";
-      return;
-    }
-
-    plants.forEach(p => {
-      const img = resolveImg(pick(p.image, p.image_url, p.imageUrl, p.img, p.photo));
-      const name = pick(p.name, p.commonName, p.scientific_name) || "Unknown";
-
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${img || 'placeholder.jpg'}" />
-        <div class="card-name">${name}</div>
-      `;
-      card.onclick = () =>
-        window.location.href = `UserEachPlant.html?id=${encodeURIComponent(plantId(p))}`;
-      grid.appendChild(card);
-    });
-  }
-
-  function filterPlants() {
-    const q = document.getElementById("searchInput").value.toLowerCase();
-    const filtered = window.allPlants.filter(p =>
-      (pick(p.name, p.commonName, p.scientific_name) || "").toLowerCase().includes(q) ||
-      (p.category || "").toLowerCase().includes(q)
+  if (sort === "az") {
+    filteredList.sort((a,b) =>
+      pick(a.name, a.commonName).localeCompare(pick(b.name, b.commonName))
     );
-    renderPlants(filtered);
+  } else if (sort === "za") {
+    filteredList.sort((a,b) =>
+      pick(b.name, b.commonName).localeCompare(pick(a.name, a.commonName))
+    );
+  } else {
+    filteredList.sort((a,b) => plantId(b) - plantId(a));
   }
 
-  loadPlants();
+  resetAndRender();
+}
+
+/* ---------------- PAGINATION ---------------- */
+function resetAndRender() {
+  currentIndex = 0;
+  document.getElementById("plantGrid").innerHTML = "";
+  loadMore();
+}
+
+function loadMore() {
+  if (isLoadingMore) return;
+  isLoadingMore = true;
+
+  const nextItems = filteredList.slice(currentIndex, currentIndex + PAGE_SIZE);
+  currentIndex += PAGE_SIZE;
+
+  renderPlants(nextItems);
+  isLoadingMore = false;
+}
+
+/* ---------------- RENDER ---------------- */
+function renderPlants(plants) {
+  const grid = document.getElementById("plantGrid");
+
+  if (!grid.children.length && !plants.length) {
+    grid.innerHTML = "<p>No plants found.</p>";
+    return;
+  }
+
+  plants.forEach(p => {
+    const img = resolveImg(pick(p.image_url, p.image));
+    const name = pick(p.name, p.commonName, p.scientific_name) || "Unknown";
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${img || 'placeholder.jpg'}">
+      <div class="card-name">${name}</div>
+    `;
+    card.onclick = () =>
+      window.location.href = `UserEachPlant.html?id=${encodeURIComponent(plantId(p))}`;
+
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- SCROLL LISTENER ---------------- */
+window.addEventListener("scroll", () => {
+  if (
+    window.innerHeight + window.scrollY >=
+    document.body.offsetHeight - 300
+  ) {
+    loadMore();
+  }
+});
+
+/* ---------------- INIT ---------------- */
+loadCategories();
+loadPlants();
 </script>
+
 
 <script src="/js/config.js"></script>
 

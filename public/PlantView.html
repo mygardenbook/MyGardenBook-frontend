@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Plant Details</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -23,8 +24,7 @@
   body::before {
     content: "";
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    inset: 0;
     background: rgba(255,255,255,0.7);
     z-index: 1;
   }
@@ -37,8 +37,8 @@
     background: none;
     border: none;
     cursor: pointer;
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
   }
 
   .container {
@@ -87,7 +87,8 @@
   }
 
   .flip-front img {
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
@@ -100,7 +101,8 @@
   }
 
   .qr-flip {
-    width: 120px; height: 120px;
+    width: 120px;
+    height: 120px;
     object-fit: contain;
     background: white;
     border-radius: 12px;
@@ -130,7 +132,7 @@
   .ai-section {
     width: 85%;
     max-width: 460px;
-    background: rgba(143, 216, 113, 0.3);
+    background: rgba(143,216,113,0.3);
     border-radius: 20px;
     box-shadow: 0 2px 10px rgba(183,218,184,0.6);
     padding: 1rem;
@@ -152,17 +154,60 @@
     margin-top: 0.6rem;
     background: #BFE7BC;
     border: none;
-    padding: 0.6rem 1rem;
+    padding: 0.7rem 1.2rem;
     border-radius: 14px;
     cursor: pointer;
     font-size: 1rem;
+  }
+
+  /* ---------------- MOBILE OPTIMIZATION ---------------- */
+  @media (max-width: 600px) {
+
+    .back-arrow {
+      width: 48px;
+      height: 48px;
+    }
+
+    .flip-card {
+      width: 90%;
+      margin-top: 4.2rem;
+    }
+
+    .qr-flip {
+      width: 140px;
+      height: 140px;
+    }
+
+    .details {
+      width: 92%;
+      font-size: 1.2rem;
+    }
+
+    .green-box {
+      font-size: 1.05rem;
+      line-height: 1.55rem;
+    }
+
+    .ai-section {
+      width: 92%;
+      padding: 1.2rem;
+    }
+
+    .ai-section textarea {
+      font-size: 1.05rem;
+      min-height: 90px;
+    }
+
+    .ai-section button {
+      width: 100%;
+      font-size: 1.05rem;
+    }
   }
 </style>
 </head>
 
 <body>
 
-<!-- Back button (same as FishView) -->
 <button class="back-arrow" onclick="window.location.href='Login.html'">
   <svg viewBox="0 0 30 30" width="100%" height="100%">
     <polyline points="20,6 10,15 20,24"
@@ -176,13 +221,11 @@
 
 <div class="container">
 
-  <!-- Flip Card -->
   <div class="flip-card" id="flipCard">
     <div class="flip-inner">
       <div class="flip-front">
         <img id="plantImage" src="placeholder.jpg" alt="Plant image">
       </div>
-
       <div class="flip-back">
         <img id="plantQR" class="qr-flip" src="qr_placeholder.png" alt="QR Code">
         <p>Scan Me!</p>
@@ -190,7 +233,6 @@
     </div>
   </div>
 
-  <!-- Details -->
   <div class="details">
     <p><strong>Scientific Name:</strong> <span id="scientificName">Loading...</span></p>
     <p><strong>Common Name:</strong> <span id="commonName">Loading...</span></p>
@@ -200,12 +242,10 @@
     <div class="green-box" id="description">Loading...</div>
   </div>
 
-  <!-- AI Section -->
   <div class="ai-section">
     <label>Ask AI</label>
     <textarea id="aiQuestion" placeholder="Ask something about this plant..."></textarea>
     <button onclick="handleUniversalAI()">Chat with AI</button>
-
     <div id="aiResponse"
          style="background:#fff;padding:1rem;border-radius:10px;max-height:200px;overflow-y:auto;"></div>
   </div>
@@ -213,43 +253,44 @@
 </div>
 
 <script>
-  const API_BASE = "https://mygardenbook-backend.onrender.com";
+const API_BASE = "https://mygardenbook-backend.onrender.com";
 
-  const params = new URLSearchParams(window.location.search);
-  const plantId = params.get("id");
+const params = new URLSearchParams(window.location.search);
+const plantId = params.get("id");
 
-  const plantImage = document.getElementById("plantImage");
-  const plantQR = document.getElementById("plantQR");
-  const scientificName = document.getElementById("scientificName");
-  const commonName = document.getElementById("commonName");
-  const category = document.getElementById("category");
-  const description = document.getElementById("description");
+const plantImage = document.getElementById("plantImage");
+const plantQR = document.getElementById("plantQR");
+const scientificName = document.getElementById("scientificName");
+const commonName = document.getElementById("commonName");
+const category = document.getElementById("category");
+const description = document.getElementById("description");
 
-  async function loadPlant() {
-    try {
-      const res = await fetch(`${API_BASE}/api/plants/${plantId}`);
-      const plant = await res.json();
+async function loadPlant() {
+  try {
+    const res = await fetch(`${API_BASE}/api/plants/${plantId}`);
+    const plant = await res.json();
 
-      plantImage.src = plant.image_url || plant.image || "placeholder.jpg";
-      plantQR.src = plant.qr_code_url || plant.qr || "qr_placeholder.png";
+    plantImage.src = plant.image_url || plant.image || "placeholder.jpg";
+    plantQR.src = plant.qr_code_url || plant.qr || "qr_placeholder.png";
 
-      scientificName.textContent = plant.scientific_name || "N/A";
-      commonName.textContent = plant.name || plant.common_name || "N/A";
-      category.textContent = plant.category || "N/A";
-      description.textContent = plant.description || "No description available.";
-    } catch (err) {
-      console.error("Plant load error:", err);
-      description.textContent = "Failed to load plant details.";
-    }
+    scientificName.textContent = plant.scientific_name || "N/A";
+    commonName.textContent = plant.name || plant.common_name || "N/A";
+    category.textContent = plant.category || "N/A";
+    description.textContent = plant.description || "No description available.";
+  } catch (err) {
+    description.textContent = "Failed to load plant details.";
   }
+}
 
-  document.getElementById("flipCard")
-    .addEventListener("click", () => document.getElementById("flipCard").classList.toggle("flipped"));
+document.getElementById("flipCard")
+  .addEventListener("click", () =>
+    document.getElementById("flipCard").classList.toggle("flipped")
+  );
 
-  loadPlant();
+loadPlant();
 </script>
-<script src="/js/config.js"></script>
 
+<script src="/js/config.js"></script>
 <script src="js/chat.js"></script>
 </body>
 </html>
