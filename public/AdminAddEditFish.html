@@ -97,7 +97,7 @@
     <button class="back-arrow" onclick="location.href='AdminFishes.html'">⬅</button>
   </div>
 
-  <h3 class="page-title" id="pageTitle">Add / Edit Fish</h3>
+  <h3 class="page-title">Add / Edit Fish</h3>
 
   <div class="form-card">
 
@@ -113,7 +113,6 @@
     <label>Category</label>
     <select id="category">
       <option value="">-- Select Category --</option>
-      <option value="_new">+ Add New Category</option>
     </select>
 
     <div id="newCategoryWrapper">
@@ -146,45 +145,6 @@
   <script src="js/config.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/AdminAddEdit.js"></script>
-
-  <!-- CATEGORY LOADER -->
-  <script>
-    const API_BASE = window.__ENV.API_BASE;
-    const categorySelect = document.getElementById("category");
-    const newCategoryWrapper = document.getElementById("newCategoryWrapper");
-
-    async function loadCategories(selected = "") {
-      const res = await fetch(`${API_BASE}/api/categories`);
-      const categories = await res.json();
-
-      categorySelect.innerHTML = `
-        <option value="">-- Select Category --</option>
-        <option value="_new">+ Add New Category</option>
-      `;
-
-      categories.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat.name;
-        opt.textContent = cat.name;
-        if (cat.name === selected) opt.selected = true;
-        categorySelect.appendChild(opt);
-      });
-    }
-
-    categorySelect.addEventListener("change", () => {
-      newCategoryWrapper.style.display =
-        categorySelect.value === "_new" ? "flex" : "none";
-    });
-
-    // Auto-select category in edit mode
-    window.addEventListener("load", () => {
-      if (window.editData && window.editData.category) {
-        loadCategories(window.editData.category);
-      } else {
-        loadCategories();
-      }
-    });
-  </script>
 
 </body>
 </html>

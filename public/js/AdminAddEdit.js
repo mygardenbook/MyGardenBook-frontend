@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("✅ AdminAddEdit.js LOADED");
 
-  const API_BASE = window.__ENV.API_BASE;
+  /* 🔧 SURGICAL FIX: prevent /undefined */
+  const API_BASE = window.__ENV?.API_BASE || "";
 
   /* ---------------- PAGE CONTEXT ---------------- */
   const page = window.location.pathname.toLowerCase();
@@ -62,29 +63,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const categories = await res.json();
 
     categorySelect.innerHTML = `
-  <option value="">-- Select Category --</option>
-  ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
-  <option value="__new__">+ Add New Category</option>
-`;
+      <option value="">-- Select Category --</option>
+      ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
+      <option value="__new__">+ Add New Category</option>
+    `;
 
     if (selected) categorySelect.value = selected;
   }
 
   /* ---------------- CATEGORY CHANGE ---------------- */
   categorySelect.addEventListener("change", () => {
-  if (categorySelect.value === "__new__") {
-    // reset dropdown so "__new__" is never treated as a real value
-    categorySelect.value = "";
-
-    // show input
-    newCategoryWrapper.style.display = "flex";
-    newCategoryInput.value = "";
-    newCategoryInput.focus();
-  } else {
-    newCategoryWrapper.style.display = "none";
-  }
-});
-
+    if (categorySelect.value === "__new__") {
+      categorySelect.value = "";
+      newCategoryWrapper.style.display = "flex";
+      newCategoryInput.value = "";
+      newCategoryInput.focus();
+    } else {
+      newCategoryWrapper.style.display = "none";
+    }
+  });
 
   /* ---------------- CREATE CATEGORY ---------------- */
   async function saveNewCategory() {
@@ -137,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     formData.append("name", commonName.value.trim());
     formData.append("scientific_name", sciName.value.trim());
     if (categorySelect.value)
-    formData.append("category", categorySelect.value);
+      formData.append("category", categorySelect.value);
     formData.append("description", description.value.trim());
 
     if (imageUpload.files.length) {
@@ -158,11 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await res.json();
     if (!res.ok) return showMessage("Save failed", "error");
 
-    /* ✅ FIXED RESPONSE HANDLING */
-    const saved =
-      data.plant ||
-      data.fish;
-
+    const saved = data.plant || data.fish;
     if (!saved) {
       console.error("Unexpected save response:", data);
       return showMessage("Save succeeded but response invalid", "error");
@@ -172,11 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!itemId) {
       itemId = saved.id;
-      qrImage.src = saved.qr_code_url;
-      qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
-      qrLink.textContent = "View Item";
-      qrSection.style.display = "block";
-      showMessage("QR generated. Save again to finish.");
+      showMessage("Saved. QR will be available after reload.");
       return;
     }
 

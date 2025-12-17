@@ -122,12 +122,11 @@
 
 <body>
 
-  <!-- Back -->
   <div class="nav-row">
     <button class="back-arrow" onclick="location.href='AdminPlants.html'">⬅</button>
   </div>
 
-  <h3 class="page-title" id="pageTitle">Add / Edit Plant</h3>
+  <h3 class="page-title">Add / Edit Plant</h3>
 
   <div class="form-card">
 
@@ -145,7 +144,6 @@
       <option value="">-- Select Category --</option>
     </select>
 
-    <!-- Inline new category -->
     <div id="newCategoryWrapper">
       <input id="newCategoryInput" placeholder="New category name">
       <button class="btn" type="button" onclick="saveNewCategory()">Save Category</button>
@@ -154,7 +152,6 @@
     <label>Description</label>
     <textarea id="description"></textarea>
 
-    <!-- AI -->
     <label>Ask AI</label>
     <textarea id="aiQuestion"></textarea>
     <button class="btn" onclick="handleUniversalAI()">Chat with AI</button>
@@ -172,48 +169,12 @@
       <p><a id="qrLink" target="_blank"></a></p>
       <button class="btn" onclick="downloadQR()">Download QR</button>
     </div>
+
   </div>
 
   <script src="js/config.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/AdminAddEdit.js"></script>
-
-  <script>
-  const API_BASE = window.__ENV.API_BASE;
-  const categorySelect = document.getElementById("category");
-  const newCategoryWrapper = document.getElementById("newCategoryWrapper");
-
-  async function loadCategories(selected = "") {
-    const res = await fetch(`${API_BASE}/api/categories`);
-    const categories = await res.json();
-
-    categorySelect.innerHTML = `
-      <option value="">-- Select Category --</option>
-      <option value="_new">+ Add New Category</option>
-    `;
-
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat.name;
-      opt.textContent = cat.name;
-      if (cat.name === selected) opt.selected = true;
-      categorySelect.appendChild(opt);
-    });
-  }
-
-  categorySelect.addEventListener("change", () => {
-    newCategoryWrapper.style.display =
-      categorySelect.value === "_new" ? "flex" : "none";
-  });
-
-  window.addEventListener("load", () => {
-    if (window.editData && window.editData.category) {
-      loadCategories(window.editData.category);
-    } else {
-      loadCategories();
-    }
-  });
-</script>
 
 </body>
 </html>
