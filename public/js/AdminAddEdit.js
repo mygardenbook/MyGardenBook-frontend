@@ -1,5 +1,5 @@
 /* =============================================================
-   AdminAddEdit.js — FINAL, VERIFIED, QR-IMMEDIATE
+   AdminAddEdit.js — FINAL, VERIFIED, QR-INSTANT
 ============================================================= */
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -48,8 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   let itemId = params.get("id");
   let currentItem = null;
-
-  // ✅ KEY FIX: explicitly track first save
   let isFirstSave = !itemId;
 
   /* ---------------- STATUS ---------------- */
@@ -72,8 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     if (selected) categorySelect.value = selected;
-
-    // ✅ force repaint (does NOT change UI)
     categorySelect.style.display = "block";
   }
 
@@ -139,8 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData();
     formData.append("name", commonName.value.trim());
     formData.append("scientific_name", sciName.value.trim());
-    if (categorySelect.value)
-      formData.append("category", categorySelect.value);
+    if (categorySelect.value) formData.append("category", categorySelect.value);
     formData.append("description", description.value.trim());
 
     if (imageUpload.files.length) {
@@ -148,9 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const res = await fetch(
-      itemId
-        ? `${API_BASE}/api/${endpoint}/${itemId}`
-        : `${API_BASE}/api/${endpoint}`,
+      itemId ? `${API_BASE}/api/${endpoint}/${itemId}` : `${API_BASE}/api/${endpoint}`,
       {
         method: itemId ? "PUT" : "POST",
         headers: authHeaders(),
@@ -162,58 +155,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!res.ok) return showMessage("Save failed", "error");
 
     const saved = data.plant || data.fish;
-    if (!saved) {
-      console.error("Unexpected save response:", data);
-      return showMessage("Save succeeded but response invalid", "error");
-    }
+    if (!saved) return showMessage("Invalid save response", "error");
 
-    /* ---------- FIRST SAVE: SHOW QR IMMEDIATELY ---------- */
+    /* ---------- FIRST SAVE ---------- */
     if (isFirstSave) {
-  itemId = saved.id;
-  isFirstSave = false;
+      itemId = saved.id;
+      isFirstSave = false;
+      currentItem = saved;
 
-  // ✅ USE QR FROM SAVE RESPONSE (FAST PATH)
-  if (saved.qr_code_url) {
-    currentItem = saved;
-    qrImage.src = saved.qr_code_url;
-    qrLink.textContent = "View Item";
-    qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
-    qrSection.style.display = "block";
-    showMessage("Saved successfully.");
-    return;
-  }
+      if (saved.qr_code_url) {
+        qrImage.src = saved.qr_code_url;
+        qrLink.textContent = "View Item";
+        qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
+        qrSection.style.display = "block";
+        showMessage("Saved successfully.");
+        return;
+      }
 
-  // 🔁 FALLBACK: poll only if QR wasn't ready
-  let attempts = 0;
-
-  const pollForQR = async () => {
-    attempts++;
-
-    const qrRes = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
-    currentItem = await qrRes.json();
-
-    if (currentItem.qr_code_url) {
-      qrImage.src = currentItem.qr_code_url;
-      qrLink.textContent = "View Item";
-      qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
-      qrSection.style.display = "block";
-      showMessage("Saved successfully.");
+      showMessage("Saved. QR will appear shortly.", "error");
       return;
     }
 
-    if (attempts < 8) {
-      setTimeout(pollForQR, 700);
-    } else {
-      showMessage("QR is still processing. Please wait a bit.", "error");
-    }
-  };
-
-  pollForQR();
-  return;
-}
-
-
-    /* ---------- SECOND SAVE: REDIRECT ---------- */
+    /* ---------- SECOND SAVE ---------- */
     location.href = redirectPage;
   }
 
@@ -230,10 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- QR DOWNLOAD ---------------- */
   function downloadQR() {
-    if (!currentItem?.qr_code_url) {
-      alert("QR not available");
-      return;
-    }
+    if (!currentItem?.qr_code_url) return alert("QR not available");
 
     const a = document.createElement("a");
     a.href = currentItem.qr_code_url;
