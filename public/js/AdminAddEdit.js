@@ -193,15 +193,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- QR DOWNLOAD ---------------- */
   function downloadQR() {
-    if (!currentItem?.qr_code_url) return alert("QR not available");
-
-    const a = document.createElement("a");
-    a.href = currentItem.qr_code_url;
-    a.download = `${currentItem.name || "qr-code"}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  if (!currentItem?.qr_code_url) {
+    alert("QR not available");
+    return;
   }
+
+  fetch(currentItem.qr_code_url)
+    .then(res => res.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+
+      const safeName = (currentItem.name || "qr-code")
+        .replace(/[^a-z0-9]/gi, "_")
+        .toLowerCase();
+
+      a.download = `${safeName}.png`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      console.error("QR download failed:", err);
+      alert("Failed to download QR");
+    });
+}
+
 
   /* ---------------- INIT ---------------- */
   loadItem();
