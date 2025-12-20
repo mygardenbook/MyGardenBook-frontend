@@ -169,36 +169,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- FIRST SAVE: SHOW QR IMMEDIATELY ---------- */
     if (isFirstSave) {
-      itemId = saved.id;
-      isFirstSave = false;
+  itemId = saved.id;
+  isFirstSave = false;
 
-      let attempts = 0;
+  // ✅ USE QR FROM SAVE RESPONSE (FAST PATH)
+  if (saved.qr_code_url) {
+    currentItem = saved;
+    qrImage.src = saved.qr_code_url;
+    qrLink.textContent = "View Item";
+    qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
+    qrSection.style.display = "block";
+    showMessage("Saved successfully.");
+    return;
+  }
 
-      const pollForQR = async () => {
-        attempts++;
+  // 🔁 FALLBACK: poll only if QR wasn't ready
+  let attempts = 0;
 
-        const qrRes = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
-        currentItem = await qrRes.json();
+  const pollForQR = async () => {
+    attempts++;
 
-        if (currentItem.qr_code_url) {
-          qrImage.src = currentItem.qr_code_url;
-          qrLink.textContent = "View Item";
-          qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
-          qrSection.style.display = "block";
-          showMessage("Saved successfully.");
-          return;
-        }
+    const qrRes = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
+    currentItem = await qrRes.json();
 
-        if (attempts < 6) {
-          setTimeout(pollForQR, 600);
-        } else {
-          showMessage("QR is still processing. Please wait.", "error");
-        }
-      };
-
-      pollForQR();
+    if (currentItem.qr_code_url) {
+      qrImage.src = currentItem.qr_code_url;
+      qrLink.textContent = "View Item";
+      qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
+      qrSection.style.display = "block";
+      showMessage("Saved successfully.");
       return;
     }
+
+    if (attempts < 8) {
+      setTimeout(pollForQR, 700);
+    } else {
+      showMessage("QR is still processing. Please wait a bit.", "error");
+    }
+  };
+
+  pollForQR();
+  return;
+}
+
 
     /* ---------- SECOND SAVE: REDIRECT ---------- */
     location.href = redirectPage;
