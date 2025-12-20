@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ AdminAddEdit.js LOADED");
 
   /* 🔧 Prevent /undefined */
-  const API_BASE = window.__ENV?.API_BASE || "";
+  const API_BASE = window.__ENV.API_BASE;
 
   /* ---------------- PAGE CONTEXT ---------------- */
   const page = window.location.pathname.toLowerCase();
