@@ -6,8 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ AdminAddEdit.js LOADED");
 
   /* 🔧 Prevent /undefined */
-  const API_BASE = window.__ENV.API_BASE;
-
+const API_BASE = window.__ENV?.API_BASE || "";
   /* ---------------- PAGE CONTEXT ---------------- */
   const page = window.location.pathname.toLowerCase();
   const isPlantPage = page.includes("plant");
@@ -58,18 +57,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------------- LOAD CATEGORIES ---------------- */
-  async function loadCategories(selected = "") {
-    const res = await fetch(`${API_BASE}/api/categories`);
-    const categories = await res.json();
+ async function loadCategories(selected = "") {
+  const res = await fetch(`${API_BASE}/api/categories`);
+  const categories = await res.json();
 
-    categorySelect.innerHTML = `
-      <option value="">-- Select Category --</option>
-      ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
-      <option value="__new__">+ Add New Category</option>
-    `;
+  categorySelect.innerHTML = `
+    <option value="">-- Select Category --</option>
+    ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
+    <option value="__new__">+ Add New Category</option>
+  `;
 
-    if (selected) categorySelect.value = selected;
-  }
+  if (selected) categorySelect.value = selected;
+
+  // ✅ FORCE dropdown repaint (fixes invisible options bug)
+  categorySelect.style.display = "block";
+}
+
 
   /* ---------------- CATEGORY CHANGE ---------------- */
   categorySelect.addEventListener("change", () => {
