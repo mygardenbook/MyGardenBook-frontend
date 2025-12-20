@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ AdminAddEdit.js LOADED");
 
   /* 🔧 Prevent /undefined */
-const API_BASE = window.__ENV?.API_BASE || "";
+  const API_BASE = window.__ENV?.API_BASE || "";
+
   /* ---------------- PAGE CONTEXT ---------------- */
   const page = window.location.pathname.toLowerCase();
   const isPlantPage = page.includes("plant");
@@ -48,6 +49,9 @@ const API_BASE = window.__ENV?.API_BASE || "";
   let itemId = params.get("id");
   let currentItem = null;
 
+  // ✅ KEY FIX: explicitly track first save
+  let isFirstSave = !itemId;
+
   /* ---------------- STATUS ---------------- */
   function showMessage(msg, type = "success") {
     if (!statusMsg) return;
@@ -57,20 +61,21 @@ const API_BASE = window.__ENV?.API_BASE || "";
   }
 
   /* ---------------- LOAD CATEGORIES ---------------- */
- async function loadCategories(selected = "") {
-  const res = await fetch(`${API_BASE}/api/categories`);
-  const categories = await res.json();
+  async function loadCategories(selected = "") {
+    const res = await fetch(`${API_BASE}/api/categories`);
+    const categories = await res.json();
 
-  categorySelect.innerHTML = `
-    <option value="">-- Select Category --</option>
-    ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
-    <option value="__new__">+ Add New Category</option>
-  `;
+    categorySelect.innerHTML = `
+      <option value="">-- Select Category --</option>
+      ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("")}
+      <option value="__new__">+ Add New Category</option>
+    `;
 
-  if (selected) categorySelect.value = selected;
+    if (selected) categorySelect.value = selected;
 
-  categorySelect.style.display = "block";
-}
+    // ✅ force repaint (does NOT change UI)
+    categorySelect.style.display = "block";
+  }
 
   /* ---------------- CATEGORY CHANGE ---------------- */
   categorySelect.addEventListener("change", () => {
@@ -163,36 +168,35 @@ const API_BASE = window.__ENV?.API_BASE || "";
     }
 
     /* ---------- FIRST SAVE: SHOW QR IMMEDIATELY ---------- */
-    if (!itemId) {
+    if (isFirstSave) {
       itemId = saved.id;
+      isFirstSave = false;
 
-      // 🔁 Poll backend until QR exists (max 5 attempts)
-let attempts = 0;
+      let attempts = 0;
 
-const pollForQR = async () => {
-  attempts++;
+      const pollForQR = async () => {
+        attempts++;
 
-  const qrRes = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
-  currentItem = await qrRes.json();
+        const qrRes = await fetch(`${API_BASE}/api/${endpoint}/${itemId}`);
+        currentItem = await qrRes.json();
 
-  if (currentItem.qr_code_url) {
-    qrImage.src = currentItem.qr_code_url;
-    qrLink.textContent = "View Item";
-    qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
-    qrSection.style.display = "block";
-    return;
-  }
+        if (currentItem.qr_code_url) {
+          qrImage.src = currentItem.qr_code_url;
+          qrLink.textContent = "View Item";
+          qrLink.href = `${isPlantPage ? "PlantView.html" : "FishView.html"}?id=${itemId}`;
+          qrSection.style.display = "block";
+          showMessage("Saved successfully.");
+          return;
+        }
 
-  if (attempts < 5) {
-    setTimeout(pollForQR, 600); // wait before retry
-  } else {
-    showMessage("QR is still processing. Please wait a moment.", "error");
-  }
-};
+        if (attempts < 6) {
+          setTimeout(pollForQR, 600);
+        } else {
+          showMessage("QR is still processing. Please wait.", "error");
+        }
+      };
 
-pollForQR();
-
-      showMessage("Saved successfully.");
+      pollForQR();
       return;
     }
 
